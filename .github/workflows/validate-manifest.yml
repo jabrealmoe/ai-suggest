@@ -1,0 +1,124 @@
+name: Validate Manifest
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'manifest.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'manifest.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate YAML syntax
+        uses: actions/checkout@v4
+        run: |
+          # Check if manifest.yml exists
+          if [ ! -f "manifest.yml" ]; then
+            echo "Error: manifest.yml not found"
+            exit 1
+          fi
+          
+          # Basic YAML validation using Python
+          python3 -c "
+          import yaml
+          import sys
+          try:
+              with open('manifest.yml', 'r') as f:
+                  data = yaml.safe_load(f)
+              print('✓ YAML syntax is valid')
+              
+              # Check required top-level keys
+              required_keys = ['modules', 'app']
+              for key in required_keys:
+                  if key not in data:
+                      print(f'✗ Missing required key: {key}')
+                      sys.exit(1)
+              print('✓ Required keys present')
+              
+          except yaml.YAMLError as e:
+              print(f'✗ YAML syntax error: {e}')
+              sys.exit(1)
+          except Exception as e:
+              print(f'✗ Error: {e}')
+              sys.exit(1)
+          "
+      
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pyyaml
+      
+      - name: Validate manifest structure
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import sys
+          
+          with open('manifest.yml', 'r') as f:
+              manifest = yaml.safe_load(f)
+          
+          errors = []
+          warnings = []
+          
+          # Check app configuration
+          if 'app' in manifest:
+              app = manifest['app']
+              if 'runtime' not in app:
+                  errors.append("Missing 'app.runtime' configuration")
+              else:
+                  runtime = app['runtime']
+                  if 'name' not in runtime:
+                      errors.append("Missing 'app.runtime.name'")
+                  if 'memoryMB' not in runtime:
+                      warnings.append("Missing 'app.runtime.memoryMB' (optional)")
+          
+          # Check modules exist
+          if 'modules' not in manifest:
+              errors.append("Missing 'modules' section")
+          
+          # Check resources
+          if 'resources' not in manifest:
+              warnings.append("No 'resources' section found")
+          
+          if errors:
+              print("✗ Validation errors:")
+              for error in errors:
+                  print(f"  - {error}")
+              sys.exit(1)
+          
+          if warnings:
+              print("⚠ Warnings:")
+              for warning in warnings:
+                  print(f"  - {warning}")
+          
+          print("✓ Manifest structure is valid")
+          EOF
+      
+      - name: Display manifest summary
+        run: |
+          echo "Manifest Summary:"
+          echo "=================="
+          python3 << 'EOF'
+          import yaml
+          with open('manifest.yml', 'r') as f:
+              manifest = yaml.safe_load(f)
+          
+          if 'app' in manifest and 'id' in manifest['app']:
+              print(f"App ID: {manifest['app']['id']}")
+          if 'modules' in manifest:
+              module_count = sum(len(v) if isinstance(v, list) else 1 for v in manifest['modules'].values())
+              print(f"Modules: {module_count}")
+          if 'permissions' in manifest and 'scopes' in manifest['permissions']:
+              print(f"Scopes: {len(manifest['permissions']['scopes'])}")
+          EOF
+
