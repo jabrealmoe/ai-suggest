@@ -19,8 +19,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Only run if FORGE_API_TOKEN secret is configured
-    if: ${{ secrets.FORGE_API_TOKEN != '' }}
     
     steps:
       - name: Checkout code
@@ -40,6 +38,19 @@ jobs:
       
       - name: Install Forge CLI
         run: npm install -g @forge/cli
+      
+      - name: Check for FORGE_API_TOKEN
+        run: |
+          if [ -z "${{ secrets.FORGE_API_TOKEN }}" ]; then
+            echo "⚠ Error: FORGE_API_TOKEN secret is not configured"
+            echo ""
+            echo "To enable automated deployment:"
+            echo "1. Create a Forge API token: https://developer.atlassian.com/console/myapps/"
+            echo "2. Add it as a GitHub secret named FORGE_API_TOKEN"
+            echo "3. Repository Settings > Secrets and variables > Actions > New repository secret"
+            exit 1
+          fi
+          echo "✓ FORGE_API_TOKEN is configured"
       
       - name: Authenticate with Forge
         env:
@@ -73,18 +84,4 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "Triggered by: ${{ github.actor }}"
 
-  # Job that runs if FORGE_API_TOKEN is not configured
-  skip-deployment:
-    runs-on: ubuntu-latest
-    if: ${{ secrets.FORGE_API_TOKEN == '' }}
-    
-    steps:
-      - name: Skip deployment
-        run: |
-          echo "⚠ Skipping deployment: FORGE_API_TOKEN secret not configured"
-          echo ""
-          echo "To enable automated deployment:"
-          echo "1. Create a Forge API token: https://developer.atlassian.com/console/myapps/"
-          echo "2. Add it as a GitHub secret named FORGE_API_TOKEN"
-          echo "3. Repository Settings > Secrets and variables > Actions > New repository secret"
 
