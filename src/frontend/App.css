@@ -1,0 +1,229 @@
+/* App.css */
+:root {
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  /* Modern Palette */
+  --color-primary: #4F46E5;
+  /* Indigo */
+  --color-primary-hover: #4338CA;
+  --color-text: #1E293B;
+  /* Slate 800 */
+  --color-text-secondary: #64748B;
+  /* Slate 500 */
+  --color-bg: #F8FAFC;
+  /* Slate 50 */
+  --color-card-bg: #FFFFFF;
+  --color-border: #E2E8F0;
+  /* Slate 200 */
+
+  --color-success: #10B981;
+  --color-error: #EF4444;
+
+  --radius: 8px;
+  /* Softer rounded corners */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* LLM Badge Colors - Gradient Text feel */
+  --color-llm-bg: #EEF2FF;
+  --color-llm-text: #4F46E5;
+
+  /* Score Badge */
+  --color-score-bg: #ECFDF5;
+  --color-score-text: #059669;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 20px;
+  max-width: 100%;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--color-text);
+  letter-spacing: -0.025em;
+}
+
+.suggestion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.suggestion-card {
+  background: var(--color-card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.suggestion-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.badges-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.suggestion-llm {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background-color: var(--color-llm-bg);
+  color: var(--color-llm-text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(79, 70, 229, 0.1);
+}
+
+.suggestion-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--color-score-bg);
+  color: var(--color-score-text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.suggestion-description {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.apply-button {
+  background-color: var(--color-card-bg);
+  /* White background */
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.apply-button:hover {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
+/* States */
+.loading-container,
+.error-container,
+.success-container {
+  text-align: center;
+  padding: 30px;
+  background: var(--color-card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+}
+
+.success-container {
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+  background-color: var(--color-score-bg);
+}
+
+.error-container {
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  background-color: #FEF2F2;
+}
+
+
+/* Skeleton Loader */
+.skeleton-card {
+  cursor: default;
+  pointer-events: none;
+}
+
+.skeleton {
+  background: #E2E8F0;
+  border-radius: 4px;
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(to right, #E2E8F0 4%, #F1F5F9 25%, #E2E8F0 36%);
+  background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 60%;
+}
+
+.skeleton-badge {
+  height: 20px;
+  width: 20%;
+  border-radius: 12px;
+}
+
+.skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.short {
+  width: 80%;
+  margin-bottom: 16px;
+}
+
+.skeleton-button {
+  height: 32px;
+  width: 100%;
+  border-radius: var(--radius);
+}

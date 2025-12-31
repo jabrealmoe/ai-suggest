@@ -1,0 +1,31 @@
+modules:
+  jira:issueContext:
+    - key: ai-suggest-hello-world-issue-context
+      resource: main
+      resolver:
+        function: resolver
+      title: AI Suggest
+      description: A hello world issue context.
+      label: Hello World!
+  webtrigger:
+    - key: webhook
+      function: webhook-resolver
+  function:
+    - key: resolver
+      handler: index.handler
+    - key: webhook-resolver
+      handler: index.webhook
+resources:
+  - key: main
+    path: dist
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/93faffed-829c-49c3-a47b-defb8756d019
+permissions:
+  scopes:
+    - read:jira-work
+    - write:jira-work
+    - storage:app
