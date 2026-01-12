@@ -1,8 +1,8 @@
 import React from 'react';
 
-const SuggestionItem = ({ suggestion, onApply }) => {
+const SuggestionItem = ({ suggestion, onApply, onViewDetails }) => {
     return (
-        <div className="suggestion-card" onClick={() => onApply(suggestion)}>
+        <div className="suggestion-card" onClick={() => onViewDetails && onViewDetails(suggestion)}>
             <div className="suggestion-header">
                 <h3 className="suggestion-title">{suggestion.title}</h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -11,7 +11,15 @@ const SuggestionItem = ({ suggestion, onApply }) => {
                 </div>
             </div>
             <p className="suggestion-description">{suggestion.description}</p>
-            <button className="apply-button">Apply Suggestion</button>
+            <button
+                className="apply-button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onApply(suggestion);
+                }}
+            >
+                Apply Suggestion
+            </button>
         </div>
     );
 };

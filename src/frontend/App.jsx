@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from '@forge/bridge';
 import SuggestionList from './components/SuggestionList';
 import RandomLoader from './components/RandomLoader'; // Used to be OvenLoader
+import SuggestionDetailModal from './components/SuggestionDetailModal';
 import './App.css';
 
 const App = () => {
@@ -11,6 +12,7 @@ const App = () => {
     const [isApplying, setIsApplying] = useState(false); // Controls Apply action state
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [selectedSuggestion, setSelectedSuggestion] = useState(null); // Detail view state
 
     useEffect(() => {
         let attempts = 0;
@@ -61,13 +63,24 @@ const App = () => {
         setIsApplying(true);
         setError(null);
 
+        // Close modal if open
+        const wasModalOpen = !!selectedSuggestion;
+
         try {
             console.log("Sending payload: { suggestionId }", suggestion.id);
             await invoke('applySuggestion', { suggestionId: suggestion.id });
+
+            // If applied successfully from modal, close it
+            if (wasModalOpen) {
+                setSelectedSuggestion(null);
+            }
+
             setSuccessMessage(`Applied suggestion: "${suggestion.title}"`);
         } catch (err) {
             console.error('Failed to apply suggestion:', err);
             setError('Failed to apply suggestion.');
+            // Don't close modal on error so they can try again maybe? 
+            // Or maybe keep it open.
         } finally {
             setIsApplying(false);
         }
@@ -105,7 +118,21 @@ const App = () => {
 
                     {/* Suggestion List */}
                     {!error && !successMessage && !isApplying && (
-                        <SuggestionList suggestions={suggestions} onApply={handleApply} />
+                        <SuggestionList
+                            suggestions={suggestions}
+                            onApply={handleApply}
+                            onViewDetails={setSelectedSuggestion}
+                        />
+                    )}
+
+                    {/* Detail Modal */}
+                    {selectedSuggestion && (
+                        <SuggestionDetailModal
+                            suggestion={selectedSuggestion}
+                            onClose={() => !isApplying && setSelectedSuggestion(null)}
+                            onApply={handleApply}
+                            isApplying={isApplying}
+                        />
                     )}
                 </>
             )}

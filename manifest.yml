@@ -5,7 +5,7 @@ modules:
       resolver:
         function: resolver
       title: AI Suggest
-      label: AI Suggest
+      label: Helpful AI Suggestions from 3 models
       description: A hello world issue context.
   webtrigger:
     - key: webhook

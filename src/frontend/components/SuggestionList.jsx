@@ -1,7 +1,7 @@
 import React from 'react';
 import SuggestionItem from './SuggestionItem';
 
-const SuggestionList = ({ suggestions, onApply }) => {
+const SuggestionList = ({ suggestions, onApply, onViewDetails }) => {
     return (
         <div className="suggestion-list">
             {suggestions.map((suggestion, index) => (
@@ -9,6 +9,7 @@ const SuggestionList = ({ suggestions, onApply }) => {
                     key={index}
                     suggestion={suggestion}
                     onApply={onApply}
+                    onViewDetails={onViewDetails}
                 />
             ))}
         </div>
