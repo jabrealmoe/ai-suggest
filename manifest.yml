@@ -5,8 +5,8 @@ modules:
       resolver:
         function: resolver
       title: AI Suggest
+      label: AI Suggest
       description: A hello world issue context.
-      label: Hello World!
   webtrigger:
     - key: webhook
       function: webhook-resolver
