@@ -68,13 +68,18 @@ jobs:
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
         run: |
-          ENV="${{ github.event.inputs.environment || 'development' }}"
-          if [ "${{ github.event_name }}" == "push" ]; then
-            # Extract environment from tag or default to development
-            ENV="development"
+          ENV="${{ github.event.inputs.environment }}"
+          
+          if [ -z "$ENV" ]; then
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              ENV="production"
+            else
+              ENV="development"
+            fi
           fi
+          
           echo "Deploying to $ENV environment..."
-          forge deploy --non-interactive --e $ENV
+          forge deploy --non-interactive -e $ENV
       
       - name: Deployment summary
         if: success()

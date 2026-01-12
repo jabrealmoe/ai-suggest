@@ -27,8 +27,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Security Audit
+        run: npm audit --audit-level=high
+
+      - name: Install Forge CLI
+        run: npm install -g @forge/cli
+
       - name: Run linter
         run: npm run lint
+      
+      - name: Forge Lint
+        env:
+          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
+        run: |
+          if [ -n "$FORGE_API_TOKEN" ]; then
+            forge lint
+          else
+            echo "Skipping Forge Lint: FORGE_API_TOKEN not found"
+          fi
       
       - name: Build project
         run: npm run build
