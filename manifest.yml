@@ -4,7 +4,7 @@ modules:
       resource: main
       resolver:
         function: resolver
-      title: AI Suggest
+      title: Dr. Jira Suggest
       label: Helpful AI Suggestions from 3 models
       description: A hello world issue context.
   webtrigger:

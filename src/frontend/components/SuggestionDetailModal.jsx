@@ -14,7 +14,9 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
 
                 <div className="modal-body">
                     <div className="modal-description">
-                        {suggestion.description}
+                        {(typeof suggestion.originalDescription === 'string' && suggestion.originalDescription)
+                            ? suggestion.originalDescription
+                            : suggestion.description}
                     </div>
                 </div>
 
