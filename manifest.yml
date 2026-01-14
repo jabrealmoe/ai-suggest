@@ -46,4 +46,4 @@ permissions:
   external:
     fetch:
       backend:
-        - '*'
+        - address: "*"
