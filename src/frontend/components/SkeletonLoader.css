@@ -1,11 +1,15 @@
 /* SkeletonLoader.css */
-@keyframes shimmer {
+@keyframes pulse {
     0% {
-        background-position: -200% 0;
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
     }
 
     100% {
-        background-position: 200% 0;
+        opacity: 1;
     }
 }
 
@@ -24,12 +28,9 @@
 }
 
 .skeleton-line {
-    background: linear-gradient(90deg,
-            var(--ds-skeleton, #F1F5F9) 25%,
-            var(--ds-skeleton-subtle, #E2E8F0) 50%,
-            var(--ds-skeleton, #F1F5F9) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite linear;
+    /* Solid color for pulse animation */
+    background-color: var(--ds-skeleton, #E2E8F0);
+    animation: pulse 1.5s ease-in-out infinite;
     border-radius: 4px;
     margin-bottom: 8px;
 }
