@@ -26,22 +26,22 @@ graph TB
         JIRA_API[Jira REST API]
     end
     
-    JIRA_API -->|Issue Created/Updated| TRIGGER
-    TRIGGER -->|POST Payload<br/>(Issue Data)| N8N
-    N8N -->|POST Webhook<br/>(AI Suggestions)| WEBHOOK
-    WEBHOOK -->|Store suggestions| STORAGE
+    JIRA_API -->|"Issue Created/Updated"| TRIGGER
+    TRIGGER -->|"POST Payload<br/>(Issue Data)"| N8N
+    N8N -->|"POST Webhook<br/>(AI Suggestions)"| WEBHOOK
+    WEBHOOK -->|"Store suggestions"| STORAGE
     
-    UI -->|Poll for suggestions| RESOLVER
-    RESOLVER -->|Read from| STORAGE
-    STORAGE -->|Return suggestions| RESOLVER
-    RESOLVER -->|Return to| UI
+    UI -->|"Poll for suggestions"| RESOLVER
+    RESOLVER -->|"Read from"| STORAGE
+    STORAGE -->|"Return suggestions"| RESOLVER
+    RESOLVER -->|"Return to"| UI
     
-    UI -->|Apply Suggestion| RESOLVER
-    RESOLVER -->|PUT Request| JIRA_API
+    UI -->|"Apply Suggestion"| RESOLVER
+    RESOLVER -->|"PUT Request"| JIRA_API
     
-    ADMIN -->|Save Config<br/>(API Key, URL)| RESOLVER
-    RESOLVER -->|Persist Settings| STORAGE
-    TRIGGER -->|Read Config| STORAGE
+    ADMIN -->|"Save Config<br/>(API Key, URL)"| RESOLVER
+    RESOLVER -->|"Persist Settings"| STORAGE
+    TRIGGER -->|"Read Config"| STORAGE
 ```
 
 ## Data Flow: Issue Event Trigger (Jira → n8n)
