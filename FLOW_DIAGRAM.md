@@ -19,6 +19,7 @@ graph TB
     subgraph "Forge App - Frontend"
         UI[React UI<br/>src/frontend/App.jsx]
         COMPONENTS[Components<br/>SuggestionList, SuggestionItem]
+        MODAL[DetailModal<br/>Typewriter Animation]
     end
     
     subgraph "Jira API"

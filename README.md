@@ -16,7 +16,8 @@ When a Jira issue is created or updated, **AI Suggest** automatically triggers a
 -   **One-Click Application:** select a suggestion to automatically update the Jira issue with the proposed changes.
 -   **Visual Polish:**
     -   **Premium UI:** Features a modern, clean interface with glassmorphism effects and smooth transitions.
-    -   **Dynamic Loaders:** Includes whimsical, randomized loading animations (Plant, Coffee, Magic, Oven, Lightbulb) to keep users engaged while waiting for AI analysis.
+    -   **Dynamic Loaders:** Includes whimsical, randomized loading animations (Brain/Neural Pulse, Coffee, Magic, Oven, Lightbulb, Plant) to keep users engaged while waiting for AI analysis.
+    -   **Interactive Previews:** Detailed view features a slick **typewriter animation** for presenting AI-generated content.
     -   **Match Scoring:** Displays a confidence score for each suggestion to help users gauge relevance.
 
 ## How It Works
