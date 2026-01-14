@@ -40,7 +40,7 @@ const AdminPage = () => {
 
     return (
         <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: '#172B4D' }}>AI Suggest Configuration</h1>
+            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: '#172B4D' }}>🩺 Dr. Jira Configuration</h1>
 
             {message && (
                 <div style={{

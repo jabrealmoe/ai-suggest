@@ -12,7 +12,7 @@ modules:
       resource: main
       resolver:
         function: resolver
-      title: AI Suggest Settings
+      title: 🩺 Dr. Jira Configuration
   webtrigger:
     - key: webhook
       function: webhook-resolver

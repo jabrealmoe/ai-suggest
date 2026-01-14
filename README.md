@@ -34,3 +34,11 @@ When a Jira issue is created or updated, **AI Suggest** automatically triggers a
 -   **Platform:** Atlassian Forge (Jira Cloud)
 -   **Frontend:** React, Vite, CSS Modules
 -   **Integration:** n8n (Webhook-based AI Agent)
+
+## Configuration
+You can configure the AI Model name and the minimum confidence score threshold.
+
+1.  In Jira, click the **Settings** (gear icon) in the top right navigation bar.
+2.  Select **Apps**.
+3.  In the left sidebar, look for the **AI Suggest** section.
+4.  Click on **🩺 Dr. Jira Configuration**.
