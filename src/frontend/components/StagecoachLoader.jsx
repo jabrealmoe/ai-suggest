@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import stagecoachImg from '../assets/stagecoach.png';
+import stagecoachSprite from '../assets/stagecoach_spritesheet.png';
 import './StagecoachLoader.css';
 
 const StagecoachLoader = ({ message = "Fetching suggestions...", isFinished, onComplete }) => {
@@ -18,12 +18,11 @@ const StagecoachLoader = ({ message = "Fetching suggestions...", isFinished, onC
 
     return (
         <div className={`stagecoach-wrapper ${animationClass === 'finished' ? 'loader-fade-out' : ''}`}>
-            <div className={`stagecoach-container ${animationClass}`}>
-                <img
-                    src={stagecoachImg}
-                    alt="Loading..."
-                    style={{ width: '100%', height: 'auto', display: 'block' }}
-                />
+            {/* Background image is handled via inline style to use the imported asset path correcty */}
+            <div
+                className={`stagecoach-container ${animationClass}`}
+                style={{ backgroundImage: `url(${stagecoachSprite})` }}
+            >
             </div>
 
             <p style={{
