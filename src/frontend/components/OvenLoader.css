@@ -75,40 +75,73 @@
     animation: pulse-glow 2s infinite ease-in-out;
 }
 
-.pie {
+.bread-loaf {
     position: absolute;
-    width: 80px;
-    height: 40px;
-    background: #dda15e;
-    border-radius: 50%;
+    width: 100px;
+    height: 60px;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -10px) scaleY(0.5);
-    box-shadow: 0 5px #b07d46;
+    transform: translate(-50%, -10px) scale(0.8);
     z-index: 5;
     transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.pie-steam {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    width: 10px;
+.loaf-top {
+    width: 90px;
+    height: 45px;
+    background: #e6c278;
+    /* Light dough unbaked? No, let's make it baked logic */
+    background: linear-gradient(to bottom, #d4a356 0%, #c6934b 100%);
+    border-radius: 40px 40px 10px 10px;
+    position: relative;
+    box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loaf-bottom {
+    width: 80px;
     height: 20px;
-    background: rgba(255, 255, 255, 0.4);
+    background: #b07d46;
+    border-radius: 5px 5px 15px 15px;
+    margin-top: -2px;
+}
+
+.score-mark {
+    position: absolute;
+    top: 10px;
+    width: 25px;
+    height: 4px;
+    background: #8b5e34;
+    border-radius: 50%;
+    transform: rotate(-15deg);
+    opacity: 0.6;
+}
+
+.s1 {
+    left: 15px;
+}
+
+.s2 {
+    left: 35px;
+}
+
+.s3 {
+    left: 55px;
+}
+
+.bread-steam {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: 8px;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 10px;
-    filter: blur(2px);
+    filter: blur(3px);
     opacity: 0;
     animation: steam 2s infinite;
-}
-
-.crust-details {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 2px dashed #975a28;
-    border-radius: 50%;
-    opacity: 0.5;
 }
 
 /* Animations */
@@ -140,7 +173,7 @@
     }
 
     100% {
-        transform: translateY(-20px) scaleX(1.5);
+        transform: translateY(-25px) scaleX(1.5);
         opacity: 0;
     }
 }
@@ -152,25 +185,25 @@
     /* Darken inside of door */
 }
 
-.oven-loader-container.finished .pie {
+.oven-loader-container.finished .bread-loaf {
     z-index: 30;
     /* Move in front of oven elements */
-    animation: serve-pie 1.5s forwards 0.3s;
+    animation: serve-bread 1.5s forwards 0.3s;
 }
 
-@keyframes serve-pie {
+@keyframes serve-bread {
     0% {
-        transform: translate(-50%, -10px) scaleY(0.5);
+        transform: translate(-50%, -10px) scale(0.8);
     }
 
     40% {
         /* Slide out */
-        transform: translate(-50%, 80px) scaleY(0.5) scale(1.1);
+        transform: translate(-50%, 80px) scale(1);
     }
 
     100% {
-        /* Present to user (scale up and flatten slightly to look like 3D view) */
-        transform: translate(-50%, 150px) scale(1.5);
+        /* Present to user */
+        transform: translate(-50%, 150px) scale(1.3);
     }
 }
 

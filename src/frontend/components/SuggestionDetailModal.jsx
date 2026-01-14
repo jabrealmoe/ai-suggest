@@ -20,7 +20,7 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
             } else {
                 clearInterval(timer);
             }
-        }, 15); // Adjust speed here (ms per char)
+        }, 5); // Adjust speed here (ms per char)
 
         return () => clearInterval(timer);
     }, [fullText]);

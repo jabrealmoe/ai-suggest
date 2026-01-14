@@ -32,11 +32,18 @@ const OvenLoader = ({ isFinished, onComplete }) => {
                 </div>
 
                 {/* Pie lives here initially */}
-                <div className="pie">
-                    <div className="crust-details"></div>
-                    <div className="pie-steam" style={{ animationDelay: '0s' }}></div>
-                    <div className="pie-steam" style={{ animationDelay: '1s', left: '40%' }}></div>
-                    <div className="pie-steam" style={{ animationDelay: '0.5s', left: '60%' }}></div>
+                {/* Bread Loaf lives here initially */}
+                <div className="bread-loaf">
+                    <div className="loaf-top">
+                        <div className="score-mark s1"></div>
+                        <div className="score-mark s2"></div>
+                        <div className="score-mark s3"></div>
+                    </div>
+                    <div className="loaf-bottom"></div>
+
+                    <div className="bread-steam" style={{ animationDelay: '0s' }}></div>
+                    <div className="bread-steam" style={{ animationDelay: '1s', left: '40%' }}></div>
+                    <div className="bread-steam" style={{ animationDelay: '0.5s', left: '60%' }}></div>
                 </div>
             </div>
 

@@ -15,12 +15,37 @@ resolver.define('getSuggestions', async (req) => {
   // Fetch suggestions from Forge Storage using Key
   const suggestions = await storage.get(`suggestions-${issueKey}`);
 
+  // Filter based on minScore if configured
+  const appConfig = await storage.get('appConfig');
+  if (appConfig && appConfig.minScore && suggestions) {
+    return suggestions.filter(s => {
+      // Assuming 'score' is a percentage in string "85%" or number
+      let scoreVal = 0;
+      if (typeof s.score === 'string') {
+        scoreVal = parseInt(s.score.replace('%', ''));
+      } else {
+        scoreVal = s.score;
+      }
+      return scoreVal >= appConfig.minScore;
+    });
+  }
+
   if (!suggestions) {
     // Return empty or default if nothing stored yet
     return [];
   }
 
   return suggestions;
+});
+
+resolver.define('getAppConfig', async (req) => {
+  const config = await storage.get('appConfig');
+  return config || { minScore: 0, modelName: 'Default' };
+});
+
+resolver.define('saveAppConfig', async (req) => {
+  await storage.set('appConfig', req.payload);
+  return { success: true };
 });
 
 resolver.define('applySuggestion', async (req) => {

@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { invoke } from '@forge/bridge';
+import { invoke, view } from '@forge/bridge';
 import SuggestionList from './components/SuggestionList';
+import AdminPage from './components/AdminPage';
 import RandomLoader from './components/RandomLoader'; // Used to be OvenLoader
 import SuggestionDetailModal from './components/SuggestionDetailModal';
 import './App.css';
 
 const App = () => {
+    // --- Router State ---
+    const [viewContext, setViewContext] = useState(null);
+
+    // --- Issue Context State ---
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(true); // Initial data loading state
     const [showLoader, setShowLoader] = useState(true); // Controls Animation visibility
@@ -15,39 +20,48 @@ const App = () => {
     const [selectedSuggestion, setSelectedSuggestion] = useState(null); // Detail view state
 
     useEffect(() => {
-        let attempts = 0;
-        const maxAttempts = 20; // Poll for ~1 minute (20 * 3s)
-        let timer;
-
-        const checkSuggestions = () => {
-            invoke('getSuggestions')
-                .then((data) => {
-                    // Only finish if we found suggestions
-                    if (data && data.length > 0) {
-                        setSuggestions(data);
-                        setLoading(false); // Triggers "done" state in RandomLoader
-                    } else if (attempts < maxAttempts) {
-                        attempts++;
-                        timer = setTimeout(checkSuggestions, 3000); // Retry in 3s
-                    } else {
-                        // Timeout - show empty list or error
-                        setLoading(false);
-                        // Note: suggestions is [] by default, so it will show empty list
-                        console.log("Polling timed out, no suggestions found.");
-                    }
-                })
-                .catch((err) => {
-                    console.error('Failed to load suggestions:', err);
-                    setError('Failed to load suggestions. Please try again.');
-                    setLoading(false);
-                    setShowLoader(false);
-                });
-        };
-
-        checkSuggestions();
-
-        return () => clearTimeout(timer);
+        // Check where we are running
+        view.getContext().then(context => {
+            setViewContext(context);
+        });
     }, []);
+
+    useEffect(() => {
+        // Only run suggestion logic if we are in issue context
+        if (viewContext && viewContext.extension && viewContext.extension.type === 'jira:issueContext') {
+            let attempts = 0;
+            const maxAttempts = 20; // Poll for ~1 minute (20 * 3s)
+            let timer;
+
+            const checkSuggestions = () => {
+                invoke('getSuggestions')
+                    .then((data) => {
+                        // Only finish if we found suggestions
+                        if (data && data.length > 0) {
+                            setSuggestions(data);
+                            setLoading(false); // Triggers "done" state in RandomLoader
+                        } else if (attempts < maxAttempts) {
+                            attempts++;
+                            timer = setTimeout(checkSuggestions, 3000); // Retry in 3s
+                        } else {
+                            // Timeout - show empty list or error
+                            setLoading(false);
+                            // Note: suggestions is [] by default, so it will show empty list
+                            console.log("Polling timed out, no suggestions found.");
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Failed to load suggestions:', err);
+                        setError('Failed to load suggestions. Please try again.');
+                        setLoading(false);
+                        setShowLoader(false);
+                    });
+            };
+
+            checkSuggestions();
+            return () => clearTimeout(timer);
+        }
+    }, [viewContext]);
 
     const handleLoaderComplete = () => {
         setShowLoader(false); // Animation finished, unmount Loader and show content
@@ -85,6 +99,15 @@ const App = () => {
             setIsApplying(false);
         }
     };
+
+    if (!viewContext) {
+        return <div className="container">Loading context...</div>;
+    }
+
+    // --- Admin Page Route ---
+    if (viewContext.extension && viewContext.extension.type === 'jira:adminPage') {
+        return <AdminPage />;
+    }
 
     return (
         <div className="container">

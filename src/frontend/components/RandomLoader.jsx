@@ -4,13 +4,15 @@ import MagicLoader from './MagicLoader';
 import PlantLoader from './PlantLoader';
 import LightbulbLoader from './LightbulbLoader';
 import CoffeeLoader from './CoffeeLoader';
+import BrainLoader from './BrainLoader';
 
 const loaders = [
     OvenLoader,
     MagicLoader,
     PlantLoader,
     LightbulbLoader,
-    CoffeeLoader
+    CoffeeLoader,
+    BrainLoader
 ];
 
 const RandomLoader = (props) => {

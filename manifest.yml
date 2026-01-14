@@ -7,6 +7,12 @@ modules:
       title: 🩺 Dr. Jira Suggest
       label: Helpful Suggestions from 3 models
       description: A hello world issue context.
+  jira:adminPage:
+    - key: ai-suggest-admin-page
+      resource: main
+      resolver:
+        function: resolver
+      title: AI Suggest Settings
   webtrigger:
     - key: webhook
       function: webhook-resolver
