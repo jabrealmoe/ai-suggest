@@ -41,6 +41,7 @@ jobs:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
         run: |
           if [ -n "$FORGE_API_TOKEN" ]; then
+            forge settings set usage-analytics false
             forge lint
           else
             echo "Skipping Forge Lint: FORGE_API_TOKEN not found"
