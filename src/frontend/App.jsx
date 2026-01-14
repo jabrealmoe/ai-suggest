@@ -20,6 +20,9 @@ const App = () => {
     const [selectedSuggestion, setSelectedSuggestion] = useState(null); // Detail view state
 
     useEffect(() => {
+        // Enable Atlassian Theme (Tokens)
+        view.theme.enable();
+
         // Check where we are running
         view.getContext().then(context => {
             setViewContext(context);
