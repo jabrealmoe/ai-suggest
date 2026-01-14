@@ -1,0 +1,58 @@
+/* SkeletonLoader.css */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-container {
+    padding: 16px;
+    width: 100%;
+}
+
+.skeleton-card {
+    background-color: var(--ds-surface, #FFFFFF);
+    border: 1px solid var(--ds-border, #E2E8F0);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm, 0 1px 3px 0 rgb(0 0 0 / 0.1));
+}
+
+.skeleton-line {
+    background: linear-gradient(90deg,
+            var(--ds-skeleton, #F1F5F9) 25%,
+            var(--ds-skeleton-subtle, #E2E8F0) 50%,
+            var(--ds-skeleton, #F1F5F9) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 90%;
+}
+
+.skeleton-text-short {
+    height: 16px;
+    width: 70%;
+}
+
+.skeleton-button {
+    height: 32px;
+    width: 100px;
+    margin-top: 12px;
+    border-radius: 6px;
+}

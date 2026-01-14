@@ -1,18 +1,16 @@
 import React from 'react';
-import '../App.css'; // Ensure CSS is available
+import './SkeletonLoader.css';
 
 const SkeletonLoader = () => {
+    // Render 3 skeleton cards to simulate a list
     return (
-        <div className="suggestion-list">
+        <div className="skeleton-container">
             {[1, 2, 3].map((item) => (
-                <div key={item} className="suggestion-card skeleton-card">
-                    <div className="suggestion-header">
-                        <div className="skeleton skeleton-title"></div>
-                        <div className="skeleton skeleton-badge"></div>
-                    </div>
-                    <div className="skeleton skeleton-text"></div>
-                    <div className="skeleton skeleton-text short"></div>
-                    <div className="skeleton skeleton-button"></div>
+                <div key={item} className="skeleton-card">
+                    <div className="skeleton-line skeleton-title"></div>
+                    <div className="skeleton-line skeleton-text"></div>
+                    <div className="skeleton-line skeleton-text-short"></div>
+                    <div className="skeleton-line skeleton-button"></div>
                 </div>
             ))}
         </div>

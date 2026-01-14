@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke, view } from '@forge/bridge';
 import SuggestionList from './components/SuggestionList';
 import AdminPage from './components/AdminPage';
-import StagecoachLoader from './components/StagecoachLoader';
+import SkeletonLoader from './components/SkeletonLoader';
 import SuggestionDetailModal from './components/SuggestionDetailModal';
 import './App.css';
 
@@ -13,7 +13,7 @@ const App = () => {
     // --- Issue Context State ---
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(true); // Initial data loading state
-    const [showLoader, setShowLoader] = useState(true); // Controls Animation visibility
+    // const [showLoader, setShowLoader] = useState(true); // Removed: Animation visibility no longer needed for skeleton
     const [isApplying, setIsApplying] = useState(false); // Controls Apply action state
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
@@ -57,7 +57,6 @@ const App = () => {
                         console.error('Failed to load suggestions:', err);
                         setError('Failed to load suggestions. Please try again.');
                         setLoading(false);
-                        setShowLoader(false);
                     });
             };
 
@@ -66,9 +65,7 @@ const App = () => {
         }
     }, [viewContext]);
 
-    const handleLoaderComplete = () => {
-        setShowLoader(false); // Animation finished, unmount Loader and show content
-    };
+
 
     const handleApply = async (suggestion) => {
         if (!suggestion || !suggestion.id) {
@@ -116,9 +113,9 @@ const App = () => {
         <div className="container">
 
 
-            {/* Stagecoach Animation for Initial Load */}
-            {showLoader ? (
-                <StagecoachLoader isFinished={!loading} onComplete={handleLoaderComplete} />
+            {/* Skeleton Loading State */}
+            {loading ? (
+                <SkeletonLoader />
             ) : (
                 <>
                     {/* Error State */}
