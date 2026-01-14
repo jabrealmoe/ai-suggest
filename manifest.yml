@@ -12,7 +12,7 @@ modules:
       resource: main
       resolver:
         function: resolver
-      title: 🩺 Dr. Jira Configuration
+      title: 🩺 Dr. Jira Settings
   webtrigger:
     - key: webhook
       function: webhook-resolver
