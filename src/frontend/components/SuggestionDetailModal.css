@@ -136,3 +136,23 @@
         transform: translateY(0);
     }
 }
+
+.cursor-blink {
+    display: inline-block;
+    color: #0052cc;
+    animation: blink-caret 0.75s step-end infinite;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+@keyframes blink-caret {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

@@ -2,6 +2,29 @@ import React from 'react';
 import './SuggestionDetailModal.css';
 
 const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => {
+    const [displayedText, setDisplayedText] = React.useState('');
+    const fullText = (typeof suggestion?.originalDescription === 'string' && suggestion.originalDescription)
+        ? suggestion.originalDescription
+        : suggestion?.description || '';
+
+    React.useEffect(() => {
+        if (!fullText) return;
+
+        setDisplayedText(''); // Reset on new suggestion
+        let index = 0;
+
+        const timer = setInterval(() => {
+            if (index < fullText.length) {
+                setDisplayedText((prev) => prev + fullText.charAt(index));
+                index++;
+            } else {
+                clearInterval(timer);
+            }
+        }, 15); // Adjust speed here (ms per char)
+
+        return () => clearInterval(timer);
+    }, [fullText]);
+
     if (!suggestion) return null;
 
     return (
@@ -13,10 +36,9 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
                 </div>
 
                 <div className="modal-body">
-                    <div className="modal-description">
-                        {(typeof suggestion.originalDescription === 'string' && suggestion.originalDescription)
-                            ? suggestion.originalDescription
-                            : suggestion.description}
+                    <div className="modal-description typing-effect">
+                        {displayedText}
+                        <span className="cursor-blink">|</span>
                     </div>
                 </div>
 
