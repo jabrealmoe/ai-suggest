@@ -36,9 +36,11 @@ When a Jira issue is created or updated, **AI Suggest** automatically triggers a
 -   **Integration:** n8n (Webhook-based AI Agent)
 
 ## Configuration
-You can configure the AI Model name and the minimum confidence score threshold.
+You can configure the n8n connection, AI Model name, and the minimum confidence score threshold.
 
-1.  In Jira, click the **Settings** (gear icon) in the top right navigation bar.
-2.  Select **Apps**.
-3.  In the left sidebar, look for the **AI Suggest** section.
-4.  Click on **🩺 Dr. Jira Settings**.
+1.  In Jira, click the **Apps** dropdown in the top navigation bar.
+2.  Select **Dr. Jira Settings**.
+3.  **n8n Webhook URL**: Enter the full URL of your n8n webhook (e.g., `https://jabreal.app.n8n.cloud/webhook/...`).
+4.  **n8n API Key**: Enter the `WEBTRIGGER_API_KEY` (Bearer token) for your webhook.
+5.  **Test Connection**: Click the "Test" button to verify the app can reach your n8n instance.
+6.  **Save Configuration**: Click "Save Configuration" to persist your settings.
