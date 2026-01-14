@@ -32,7 +32,6 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{suggestion.title}</h2>
-                    <span className="modal-score">{suggestion.score}% Match</span>
                 </div>
 
                 <div className="modal-body">

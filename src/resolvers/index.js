@@ -40,7 +40,42 @@ resolver.define('getSuggestions', async (req) => {
 
 resolver.define('getAppConfig', async (req) => {
   const config = await storage.get('appConfig');
-  return config || { minScore: 0, modelName: 'Default' };
+  return config || { minScore: 0, modelName: 'Default', n8nUrl: '' };
+});
+
+resolver.define('testN8nConnection', async (req) => {
+  const { url, apiKey } = req.payload;
+  if (!url) {
+    throw new Error("URL is required");
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+
+    const response = await api.fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        test: true,
+        message: "Hello from Dr. Jira settings!",
+        timestamp: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      return { success: true, status: response.status };
+    } else {
+      return { success: false, status: response.status, statusText: response.statusText };
+    }
+  } catch (error) {
+    console.error("Test connection failed:", error);
+    throw new Error(`Connection failed: ${error.message}`);
+  }
 });
 
 resolver.define('saveAppConfig', async (req) => {

@@ -5,7 +5,7 @@ modules:
       resolver:
         function: resolver
       title: 🩺 Dr. Jira Suggest
-      label: Helpful Suggestions from 3 models
+      label: Helpful suggestions from multi-models
       description: A hello world issue context.
   jira:adminPage:
     - key: ai-suggest-admin-page
@@ -21,6 +21,14 @@ modules:
       handler: index.handler
     - key: webhook-resolver
       handler: index.webhook
+    - key: event-trigger
+      handler: index.trigger
+  trigger:
+    - key: issue-event-trigger
+      function: event-trigger
+      events:
+        - avi:jira:created:issue
+        - avi:jira:updated:issue
 resources:
   - key: main
     path: dist
@@ -35,3 +43,7 @@ permissions:
     - read:jira-work
     - write:jira-work
     - storage:app
+  external:
+    fetch:
+      backend:
+        - '*'

@@ -40,7 +40,7 @@ const AdminPage = () => {
 
     return (
         <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: '#172B4D' }}>🩺 Dr. Jira Settings</h1>
+            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: '#172B4D' }}>AI Suggest Configuration</h1>
 
             {message && (
                 <div style={{
@@ -95,6 +95,84 @@ const AdminPage = () => {
                 />
                 <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
                     Display name for the AI model source.
+                </p>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                    N8N Webhook URL
+                </label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                        type="url"
+                        value={config.n8nUrl || ''}
+                        onChange={(e) => setConfig({ ...config, n8nUrl: e.target.value })}
+                        placeholder="https://your-n8n-instance.com/webhook/..."
+                        style={{
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: '1px solid #dfe1e6',
+                            flexGrow: 1,
+                            fontSize: '14px'
+                        }}
+                    />
+                    <button
+                        onClick={async () => {
+                            setSaving(true);
+                            try {
+                                const res = await invoke('testN8nConnection', {
+                                    url: config.n8nUrl,
+                                    apiKey: config.n8nApiKey
+                                });
+                                if (res.success) {
+                                    setMessage({ type: 'success', text: `Connection successful! (Status: ${res.status})` });
+                                } else {
+                                    setMessage({ type: 'error', text: `Connection failed: ${res.status} ${res.statusText}` });
+                                }
+                            } catch (e) {
+                                setMessage({ type: 'error', text: `Connection error: ${e.message}` });
+                            } finally {
+                                setSaving(false);
+                            }
+                        }}
+                        disabled={saving || !config.n8nUrl}
+                        style={{
+                            padding: '8px 12px',
+                            background: '#F4F5F7',
+                            border: '1px solid #dfe1e6',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            color: '#42526E',
+                            fontWeight: 500
+                        }}
+                    >
+                        Test
+                    </button>
+                </div>
+                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                    The endpoint where issue events will be sent for analysis.
+                </p>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                    n8n API Key (Authorization Header)
+                </label>
+                <input
+                    type="password"
+                    value={config.n8nApiKey || ''}
+                    onChange={(e) => setConfig({ ...config, n8nApiKey: e.target.value })}
+                    placeholder="Secret API Key"
+                    style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #dfe1e6',
+                        width: '100%',
+                        fontSize: '14px'
+                    }}
+                />
+                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                    If your n8n webhook requires a Bearer token, enter it here.
                 </p>
             </div>
 
