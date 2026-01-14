@@ -20,7 +20,6 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Validate YAML syntax
-        uses: actions/checkout@v4
         run: |
           # Check if manifest.yml exists
           if [ ! -f "manifest.yml" ]; then
