@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke, view } from '@forge/bridge';
 import SuggestionList from './components/SuggestionList';
 import AdminPage from './components/AdminPage';
-import RandomLoader from './components/RandomLoader'; // Used to be OvenLoader
+import StagecoachLoader from './components/StagecoachLoader';
 import SuggestionDetailModal from './components/SuggestionDetailModal';
 import './App.css';
 
@@ -116,9 +116,9 @@ const App = () => {
         <div className="container">
 
 
-            {/* Random Animation for Initial Load */}
+            {/* Stagecoach Animation for Initial Load */}
             {showLoader ? (
-                <RandomLoader isFinished={!loading} onComplete={handleLoaderComplete} />
+                <StagecoachLoader isFinished={!loading} onComplete={handleLoaderComplete} />
             ) : (
                 <>
                     {/* Error State */}
