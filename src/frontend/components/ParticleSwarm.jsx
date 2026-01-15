@@ -24,7 +24,7 @@ const Swarm = () => {
     // Theme Awareness: Polling for CSS variable changes
     const [particleColor, setParticleColor] = useState('#0052CC');
 
-    useEffect(() => {
+    React.useEffect(() => {
         const updateColor = () => {
             // --ds-link is Blue in Light Mode (#0052CC) and Light Blue in Dark Mode (#4794FF)
             const styles = getComputedStyle(document.documentElement);
