@@ -11,6 +11,13 @@ AI Suggest is a Jira Cloud Forge application designed to intelligently assist us
   <img src="assets/demo-2.gif" width="48%" alt="Suggestions Demo" />
 </p>
 
+### Dr. Jira Settings (Admin Page)
+The **Admin Page** features a fully interactive **Particle Swarm** animation that responds to your theme (Blue in Light Mode, White in Dark Mode) and spells out "Dr. Jira". It allows you to configure the **AI Model**, **N8N Connection**, and **Confidence Thresholds** with a modern, stable UI.
+
+<p align="center">
+  <img src="assets/demo-3.gif" width="100%" alt="Admin Page Demo" />
+</p>
+
 ## Use Case
 
 When a Jira issue is created or updated, **AI Suggest** automatically triggers an analysis. It presents the user with a list of AI-generated suggestions directly within the Jira issue context panel. Users can review these suggestions and apply them with a single click, streamlining the issue refinement process.
