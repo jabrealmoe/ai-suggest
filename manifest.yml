@@ -4,9 +4,9 @@ modules:
       resource: main
       resolver:
         function: resolver
-      title: 🩺 Dr. Jira Suggest
-      label: Helpful suggestions from multi-models
-      description: A hello world issue context.
+      title: Dr. Jira Suggest
+      label: 🩺 Suggestions from multi-models
+      description: Helpful AI suggestions from multi-models.
   jira:adminPage:
     - key: ai-suggest-admin-page
       resource: main

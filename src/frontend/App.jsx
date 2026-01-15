@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke, view } from '@forge/bridge';
 import SuggestionList from './components/SuggestionList';
 import AdminPage from './components/AdminPage';
-import SkeletonLoader from './components/SkeletonLoader';
+import BrainLoader from './components/BrainLoader';
 import SuggestionDetailModal from './components/SuggestionDetailModal';
 import './App.css';
 
@@ -113,9 +113,9 @@ const App = () => {
         <div className="container">
 
 
-            {/* Skeleton Loading State */}
+            {/* Brain Loading State */}
             {loading ? (
-                <SkeletonLoader />
+                <BrainLoader />
             ) : (
                 <>
                     {/* Error State */}

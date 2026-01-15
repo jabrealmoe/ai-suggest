@@ -147,6 +147,12 @@ export const webhook = async (req) => {
 export const trigger = async (event) => {
     console.log("Trigger fired", JSON.stringify(event));
 
+    // Prevent infinite loops: specific actions by this app (using asApp) trigger this flag
+    if (event.selfGenerated) {
+        console.log("Event was self-generated (likely by Apply Suggestion). Ignoring to prevent loops.");
+        return;
+    }
+
     // Get configuration from Storage OR Environment Variables
     const appConfig = await storage.get('appConfig') || {};
 

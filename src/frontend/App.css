@@ -289,3 +289,63 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+/* Staggered Fade-in Animation for Suggestions */
+@keyframes fadeInSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestion-card {
+  /* Ensure element starts hidden before animation runs */
+  animation: fadeInSlideUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Stagger delays starting at 1.25s */
+.suggestion-card:nth-child(1) {
+  animation-delay: 1.25s;
+}
+
+.suggestion-card:nth-child(2) {
+  animation-delay: 1.50s;
+}
+
+.suggestion-card:nth-child(3) {
+  animation-delay: 1.75s;
+}
+
+.suggestion-card:nth-child(4) {
+  animation-delay: 2.00s;
+}
+
+.suggestion-card:nth-child(5) {
+  animation-delay: 2.25s;
+}
+
+.suggestion-card:nth-child(6) {
+  animation-delay: 2.50s;
+}
+
+.suggestion-card:nth-child(7) {
+  animation-delay: 2.75s;
+}
+
+.suggestion-card:nth-child(8) {
+  animation-delay: 3.00s;
+}
+
+.suggestion-card:nth-child(9) {
+  animation-delay: 3.25s;
+}
+
+.suggestion-card:nth-child(10) {
+  animation-delay: 3.50s;
+}
