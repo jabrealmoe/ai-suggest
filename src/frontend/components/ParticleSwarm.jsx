@@ -28,9 +28,15 @@ const Swarm = () => {
         const updateColor = () => {
             // --ds-link is Blue in Light Mode (#0052CC) and Light Blue in Dark Mode (#4794FF)
             const styles = getComputedStyle(document.documentElement);
-            const color = styles.getPropertyValue('--ds-link').trim();
-            // Fallback if variable is not set (e.g. dev env without tokens)
-            setParticleColor(color || '#0052CC');
+            const linkColor = styles.getPropertyValue('--ds-link').trim();
+
+            // If the color isn't the standard light blue, we assume Dark Mode and use WHITE.
+            // Using a loose check to handle potential minor token updates.
+            if (linkColor && linkColor !== '#0052CC' && linkColor !== 'rgb(0, 82, 204)') {
+                setParticleColor('#FFFFFF'); // User requested White for Dark Mode
+            } else {
+                setParticleColor('#0052CC'); // Blue for Light Mode
+            }
         };
 
         updateColor();
