@@ -26,22 +26,16 @@ const Swarm = () => {
 
     useEffect(() => {
         const updateColor = () => {
+            // --ds-link is Blue in Light Mode (#0052CC) and Light Blue in Dark Mode (#4794FF)
             const styles = getComputedStyle(document.documentElement);
-            const linkColor = styles.getPropertyValue('--ds-link').trim();
-            // Standard Light Mode Blue is #0052CC or similar. 
-            // In Dark Mode, it becomes #4794FF.
-            // If the color isn't the standard light blue, we assume Dark Mode and use WHITE as requested.
-            // Using a loose check to handle potential minor token updates.
-            if (linkColor && linkColor !== '#0052CC' && linkColor !== 'rgb(0, 82, 204)') {
-                setParticleColor('#FFFFFF'); // User requested White for Dark Mode
-            } else {
-                setParticleColor('#0052CC'); // Blue for Light Mode
-            }
+            const color = styles.getPropertyValue('--ds-link').trim();
+            // Fallback if variable is not set (e.g. dev env without tokens)
+            setParticleColor(color || '#0052CC');
         };
 
         updateColor();
-        // Poll for theme changes
-        const interval = setInterval(updateColor, 1000);
+        // Poll for theme changes (cheap and effective for iframe context)
+        const interval = setInterval(updateColor, 2000);
         return () => clearInterval(interval);
     }, []);
 
