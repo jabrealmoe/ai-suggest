@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { invoke } from '@forge/bridge';
+import ParticleSwarm from './ParticleSwarm';
 
 const AdminPage = () => {
     const [config, setConfig] = useState({
@@ -39,23 +40,27 @@ const AdminPage = () => {
     if (loading) return <div style={{ padding: '20px' }}>Loading settings...</div>;
 
     return (
-        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: '#172B4D' }}>AI Suggest Configuration</h1>
+        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: 'var(--ds-text, #172B4D)' }}>
+
+            {/* 🐝 Particle Swarm Animation */}
+            <ParticleSwarm />
+
+            <h1 style={{ marginBottom: '24px', fontSize: '24px', color: 'var(--ds-text, #172B4D)' }}>AI Suggest Configuration</h1>
 
             {message && (
                 <div style={{
                     padding: '12px',
                     marginBottom: '20px',
                     borderRadius: '4px',
-                    backgroundColor: message.type === 'success' ? '#E3FCEF' : '#FFEBE6',
-                    color: message.type === 'success' ? '#006644' : '#BF2600'
+                    backgroundColor: message.type === 'success' ? 'var(--ds-background-success, #E3FCEF)' : 'var(--ds-background-danger, #FFEBE6)',
+                    color: message.type === 'success' ? 'var(--ds-text-success, #006644)' : 'var(--ds-text-danger, #BF2600)'
                 }}>
                     {message.text}
                 </div>
             )}
 
             <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
                     Minimum Confidence Threshold (%)
                 </label>
                 <input
@@ -67,18 +72,20 @@ const AdminPage = () => {
                     style={{
                         padding: '8px',
                         borderRadius: '4px',
-                        border: '1px solid #dfe1e6',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
                         width: '100%',
-                        fontSize: '14px'
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
                     }}
                 />
-                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
                     Suggestions below this score will be filtered out (example setting).
                 </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
                     AI Model Identifier
                 </label>
                 <input
@@ -88,18 +95,20 @@ const AdminPage = () => {
                     style={{
                         padding: '8px',
                         borderRadius: '4px',
-                        border: '1px solid #dfe1e6',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
                         width: '100%',
-                        fontSize: '14px'
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
                     }}
                 />
-                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
                     Display name for the AI model source.
                 </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
                     N8N Webhook URL
                 </label>
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -111,9 +120,11 @@ const AdminPage = () => {
                         style={{
                             padding: '8px',
                             borderRadius: '4px',
-                            border: '1px solid #dfe1e6',
+                            border: '1px solid var(--ds-border-input, #dfe1e6)',
                             flexGrow: 1,
-                            fontSize: '14px'
+                            fontSize: '14px',
+                            backgroundColor: 'var(--ds-background-input, #ffffff)',
+                            color: 'var(--ds-text, #172B4D)'
                         }}
                     />
                     <button
@@ -138,24 +149,24 @@ const AdminPage = () => {
                         disabled={saving || !config.n8nUrl}
                         style={{
                             padding: '8px 12px',
-                            background: '#F4F5F7',
-                            border: '1px solid #dfe1e6',
+                            background: 'var(--ds-surface-overlay, #F4F5F7)',
+                            border: '1px solid var(--ds-border, #dfe1e6)',
                             borderRadius: '4px',
                             cursor: 'pointer',
-                            color: '#42526E',
+                            color: 'var(--ds-text, #42526E)',
                             fontWeight: 500
                         }}
                     >
                         Test
                     </button>
                 </div>
-                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
                     The endpoint where issue events will be sent for analysis.
                 </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
                     n8n API Key (Authorization Header)
                 </label>
                 <input
@@ -166,92 +177,134 @@ const AdminPage = () => {
                     style={{
                         padding: '8px',
                         borderRadius: '4px',
-                        border: '1px solid #dfe1e6',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
                         width: '100%',
-                        fontSize: '14px'
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
                     }}
                 />
-                <p style={{ fontSize: '12px', color: '#6B778C', marginTop: '4px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
                     If your n8n webhook requires a Bearer token, enter it here.
                 </p>
             </div>
 
             {/* Advanced LLM Configuration */}
-            <div style={{ marginBottom: '24px', padding: '16px', background: '#F4F5F7', borderRadius: '4px' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '16px', color: '#172B4D' }}>Advanced AI Parameters</h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    {/* Temperature */}
-                    <div>
-                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
-                            Temperature (0.0 - 1.0)
-                        </label>
-                        <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={config.temperature !== undefined ? config.temperature : 0.7}
-                            onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
-                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
-                        />
-                    </div>
+            <h3 style={{ marginTop: '30px', marginBottom: '20px', fontSize: '18px', color: 'var(--ds-text, #172B4D)', borderBottom: '1px solid var(--ds-border, #dfe1e6)', paddingBottom: '10px' }}>
+                Advanced AI Parameters
+            </h3>
 
-                    {/* Top P */}
-                    <div>
-                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
-                            Top P (0.0 - 1.0)
-                        </label>
-                        <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={config.topP !== undefined ? config.topP : 0.9}
-                            onChange={(e) => setConfig({ ...config, topP: parseFloat(e.target.value) })}
-                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
-                        />
-                    </div>
+            {/* Temperature */}
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
+                    Temperature
+                </label>
+                <input
+                    type="number"
+                    step="0.01"
+                    value={config.temperature !== undefined ? config.temperature : 0.7}
+                    onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
+                    style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        width: '100%',
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
+                    }}
+                    placeholder="e.g. 0.7"
+                />
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
+                    Controls creativity (0.0 = deterministic, 1.0 = creative).
+                </p>
+            </div>
 
-                    {/* Top K */}
-                    <div>
-                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
-                            Top K (0 - 100)
-                        </label>
-                        <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="1"
-                            value={config.topK !== undefined ? config.topK : 50}
-                            onChange={(e) => setConfig({ ...config, topK: parseInt(e.target.value) })}
-                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
-                        />
-                    </div>
+            {/* Top P */}
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
+                    Top P
+                </label>
+                <input
+                    type="number"
+                    step="0.01"
+                    value={config.topP !== undefined ? config.topP : 0.9}
+                    onChange={(e) => setConfig({ ...config, topP: parseFloat(e.target.value) })}
+                    style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        width: '100%',
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
+                    }}
+                    placeholder="e.g. 0.9"
+                />
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
+                    Nucleus sampling probability (0.0 - 1.0).
+                </p>
+            </div>
 
-                    {/* Max Tokens */}
-                    <div>
-                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
-                            Max Tokens
-                        </label>
-                        <input
-                            type="number"
-                            min="1"
-                            step="1"
-                            value={config.maxTokens !== undefined ? config.maxTokens : 1000}
-                            onChange={(e) => setConfig({ ...config, maxTokens: parseInt(e.target.value) })}
-                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
-                        />
-                    </div>
-                </div>
+            {/* Top K */}
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
+                    Top K
+                </label>
+                <input
+                    type="number"
+                    step="any"
+                    value={config.topK !== undefined ? config.topK : 50}
+                    onChange={(e) => setConfig({ ...config, topK: parseFloat(e.target.value) })}
+                    style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        width: '100%',
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
+                    }}
+                    placeholder="e.g. 50"
+                />
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
+                    Limits the next token selection. Set to -1 to disable.
+                </p>
+            </div>
+
+            {/* Max Tokens */}
+            <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
+                    Max Tokens
+                </label>
+                <input
+                    type="number"
+                    step="1"
+                    value={config.maxTokens !== undefined ? config.maxTokens : 1000}
+                    onChange={(e) => setConfig({ ...config, maxTokens: parseInt(e.target.value) })}
+                    style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        width: '100%',
+                        fontSize: '14px',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        color: 'var(--ds-text, #172B4D)'
+                    }}
+                    placeholder="e.g. 1000"
+                />
+                <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
+                    Maximum number of tokens to generate.
+                </p>
             </div>
 
             <button
                 onClick={handleSave}
                 disabled={saving}
                 style={{
-                    backgroundColor: '#0052CC',
-                    color: 'white',
+                    backgroundColor: 'var(--ds-background-brand-bold, #0052CC)',
+                    color: 'var(--ds-text-inverse, white)',
                     padding: '10px 20px',
                     border: 'none',
                     borderRadius: '4px',
