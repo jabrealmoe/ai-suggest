@@ -2,6 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from '@forge/bridge';
 import ParticleSwarm from './ParticleSwarm';
 
+// Simple Error Boundary for the Swarm
+class SwarmErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error("Swarm crashed:", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            // Fallback UI
+            return <div style={{ height: '200px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ds-text-subtlest, #6B778C)' }}>
+                {/* Fallback space */}
+            </div>;
+        }
+        return this.props.children;
+    }
+}
+
 const AdminPage = () => {
     const [config, setConfig] = useState({
         minScore: 70,
@@ -42,8 +65,10 @@ const AdminPage = () => {
     return (
         <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: 'var(--ds-text, #172B4D)' }}>
 
-            {/* 🐝 Particle Swarm Animation */}
-            <ParticleSwarm />
+            {/* 🐝 Particle Swarm Animation with Error Protection */}
+            <SwarmErrorBoundary>
+                <ParticleSwarm />
+            </SwarmErrorBoundary>
 
             <h1 style={{ marginBottom: '24px', fontSize: '24px', color: 'var(--ds-text, #172B4D)' }}>AI Suggest Configuration</h1>
 
