@@ -16,73 +16,88 @@ const ParticleSwarm = () => {
 };
 
 const Swarm = () => {
-    const { opacity } = useThree((state) => ({ opacity: state.viewport.width })); // Trigger re-render on resize
+    const { opacity } = useThree((state) => ({ opacity: state.viewport.width }));
     const count = 1500;
     const mesh = useRef();
     const [hovered, setHover] = useState(false);
 
-    // Generate random positions (start) and target positions (AI shape)
+    // Generate random positions (start) and target positions from Text (Canvas)
     const [positions, targets] = useMemo(() => {
         const pos = new Float32Array(count * 3);
         const tar = new Float32Array(count * 3);
 
-        // Grid for "A"
-        // A shape: two slanted lines and a crossbar
-        // Normalized roughly to -5 to 5 space
-        const aPoints = [];
-        for (let i = 0; i < 400; i++) {
-            // Left leg
-            aPoints.push([-2 - (i / 200), -2 + (i / 100), 0]);
-            // Right leg
-            aPoints.push([-2 + (i / 200), -2 + (i / 100), 0]);
-        }
-        for (let i = 0; i < 100; i++) {
-            // Crossbar
-            aPoints.push([-2.5 + (i / 100), 0, 0]);
+        // --- Canvas Text Generation ---
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = 200;
+        const height = 50;
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw text
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, width, height); // Clear
+        ctx.fillStyle = 'white';
+        // Bold sans-serif font
+        ctx.font = 'bold 30px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // "Dr. Jira"
+        ctx.fillText('Dr. Jira', width / 2, height / 2);
+
+        // Scan pixel data
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        const textPoints = [];
+
+        // Sample pixels
+        for (let y = 0; y < height; y += 1) { // Step size affects density
+            for (let x = 0; x < width; x += 1) {
+                const index = (y * width + x) * 4;
+                // If pixel is bright enough
+                if (data[index] > 128) {
+                    // Map x/y to 3D space 
+                    // Canvas y goes down, 3D y goes up. Flip Y.
+                    // Center the text (width/2, height/2 offsets)
+                    const px = (x - width / 2) * 0.15;
+                    const py = -(y - height / 2) * 0.15; // Flip Y
+                    textPoints.push([px, py, 0]);
+                }
+            }
         }
 
-        // Grid for "I"
-        const iPoints = [];
-        for (let i = 0; i < 400; i++) {
-            // Vertical bar
-            iPoints.push([2, -2 + (i / 100), 0]);
-        }
-        for (let i = 0; i < 100; i++) {
-            // Top cap
-            iPoints.push([1.5 + (i / 100), 2, 0]);
-            // Bottom cap
-            iPoints.push([1.5 + (i / 100), -2, 0]);
-        }
-
-        const totalShapePoints = aPoints.length + iPoints.length;
-
+        // --- Assign Targets ---
         for (let i = 0; i < count; i++) {
             // Random start
-            pos[i * 3] = (Math.random() - 0.5) * 30; // x
-            pos[i * 3 + 1] = (Math.random() - 0.5) * 30; // y
-            pos[i * 3 + 2] = (Math.random() - 0.5) * 30; // z
+            pos[i * 3] = (Math.random() - 0.5) * 40;
+            pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 40;
 
-            // Target assignment
-            if (i < aPoints.length) {
-                tar[i * 3] = aPoints[i][0] * 1.5;
-                tar[i * 3 + 1] = aPoints[i][1] * 1.5;
-                tar[i * 3 + 2] = 0;
-            } else if (i < aPoints.length + iPoints.length) {
-                const idx = i - aPoints.length;
-                tar[i * 3] = iPoints[idx][0] * 1.5;
-                tar[i * 3 + 1] = iPoints[idx][1] * 1.5;
+            if (i < textPoints.length) {
+                // Assign to text grid, reusing points if we have fewer particles
+                // Or random sampling if we have more points than particles
+                const pointIndex = i % textPoints.length; // Cycle through points if not enough
+                tar[i * 3] = textPoints[pointIndex][0];
+                tar[i * 3 + 1] = textPoints[pointIndex][1];
                 tar[i * 3 + 2] = 0;
             } else {
-                // Leftovers float nearby
-                tar[i * 3] = (Math.random() - 0.5) * 10;
-                tar[i * 3 + 1] = (Math.random() - 0.5) * 10;
-                tar[i * 3 + 2] = (Math.random() - 0.5) * 5;
+                // Leftover particles float around the text as "dust"
+                // Pick a random text point and add noise
+                const pointIndex = Math.floor(Math.random() * textPoints.length);
+                if (textPoints.length > 0) {
+                    tar[i * 3] = textPoints[pointIndex][0] + (Math.random() - 0.5) * 5;
+                    tar[i * 3 + 1] = textPoints[pointIndex][1] + (Math.random() - 0.5) * 5;
+                    tar[i * 3 + 2] = (Math.random() - 0.5) * 3;
+                } else {
+                    tar[i * 3] = 0; tar[i * 3 + 1] = 0; tar[i * 3 + 2] = 0;
+                }
             }
         }
         return [pos, tar];
     }, [count]);
 
     const dummy = new THREE.Object3D();
+    // Initialize particle data (velocity, current pos)
     const particles = useMemo(() => {
         const temp = [];
         for (let i = 0; i < count; i++) {
@@ -102,11 +117,10 @@ const Swarm = () => {
         if (!mesh.current) return;
 
         const time = state.clock.getElapsedTime();
-        const mouse = state.pointer; // Normalized -1 to 1
+        const mouse = state.pointer;
 
-        // Convert mouse to world space roughly (camera at z=20)
         const mouseX = mouse.x * 20;
-        const mouseY = mouse.y * 10; // Aspect ratio approx
+        const mouseY = mouse.y * 10;
 
         for (let i = 0; i < count; i++) {
             const p = particles[i];
@@ -114,17 +128,17 @@ const Swarm = () => {
             const ty = targets[i * 3 + 1];
             const tz = targets[i * 3 + 2];
 
-            // Attraction to target
+            // Attraction
             const dx = tx - p.x;
             const dy = ty - p.y;
             const dz = tz - p.z;
 
-            // Basic spring force
-            p.vx += dx * 0.05;
-            p.vy += dy * 0.05;
-            p.vz += dz * 0.05;
+            // Spring
+            p.vx += dx * 0.03; // Slower convergence for "swarming" feel
+            p.vy += dy * 0.03;
+            p.vz += dz * 0.03;
 
-            // Mouse Repulsion
+            // Repulsion
             const mdx = p.x - mouseX;
             const mdy = p.y - mouseY;
             const dist = Math.sqrt(mdx * mdx + mdy * mdy);
@@ -133,27 +147,25 @@ const Swarm = () => {
                 const force = (4 - dist) * 0.5;
                 p.vx += (mdx / dist) * force;
                 p.vy += (mdy / dist) * force;
-                p.vz += Math.random() * force; // Add some chaos Z
+                p.vz += (Math.random() - 0.5) * force;
             }
 
             // Friction
-            p.vx *= 0.90;
-            p.vy *= 0.90;
-            p.vz *= 0.90;
+            p.vx *= 0.92;
+            p.vy *= 0.92;
+            p.vz *= 0.92;
 
-            // Update pos
             p.x += p.vx;
             p.y += p.vy;
             p.z += p.vz;
 
-            // Apply wobbling noise
-            const noise = Math.sin(time + i) * 0.02;
+            // Noise wobble
+            const noise = Math.sin(time * 2 + i) * 0.05;
 
             dummy.position.set(p.x + noise, p.y + noise, p.z);
 
-            // Scale based on "AI" formation vs chaos
-            const scale = (i < 1000) ? 0.15 : 0.08;
-            dummy.scale.set(scale, scale, scale);
+            // Scale logic
+            dummy.scale.set(0.08, 0.08, 0.08);
 
             dummy.updateMatrix();
             mesh.current.setMatrixAt(i, dummy.matrix);
@@ -164,7 +176,8 @@ const Swarm = () => {
     return (
         <instancedMesh ref={mesh} args={[null, null, count]} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
             <sphereGeometry args={[1, 8, 8]} />
-            <meshStandardMaterial color={hovered ? "#00B8D9" : "#0052CC"} transparent opacity={0.8} />
+            {/* Using a nice cyan/blue gradient color */}
+            <meshStandardMaterial color={hovered ? "#36B37E" : "#0052CC"} transparent opacity={0.7} />
         </instancedMesh>
     );
 };
