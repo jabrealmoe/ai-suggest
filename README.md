@@ -4,6 +4,13 @@
 
 AI Suggest is a Jira Cloud Forge application designed to intelligently assist users by suggesting improvements to Jira issues. It leverages an external AI agent (via n8n webhooks) to analyze issue data and provide actionable suggestions, such as improved descriptions, summaries, or other enhancements.
 
+## Demos
+
+<p align="center">
+  <img src="assets/demo-1.gif" width="48%" alt="3D Brain Demo" />
+  <img src="assets/demo-2.gif" width="48%" alt="Suggestions Demo" />
+</p>
+
 ## Use Case
 
 When a Jira issue is created or updated, **AI Suggest** automatically triggers an analysis. It presents the user with a list of AI-generated suggestions directly within the Jira issue context panel. Users can review these suggestions and apply them with a single click, streamlining the issue refinement process.
