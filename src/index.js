@@ -242,6 +242,13 @@ export const trigger = async (event) => {
                 created: issue.fields.created,
                 updated: issue.fields.updated,
                 dueDate: issue.fields.duedate,
+                // Advanced LLM Configuration
+                llmConfig: {
+                    temperature: appConfig.temperature !== undefined ? appConfig.temperature : 0.7,
+                    topP: appConfig.topP !== undefined ? appConfig.topP : 0.9,
+                    topK: appConfig.topK !== undefined ? appConfig.topK : 50,
+                    maxTokens: appConfig.maxTokens !== undefined ? appConfig.maxTokens : 1000
+                },
                 // Include the full event for maximum flexibility
                 fullEvent: event,
                 // Include context information (note: context might not be fully available in async trigger like UI resolver)

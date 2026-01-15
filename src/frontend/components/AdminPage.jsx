@@ -176,6 +176,76 @@ const AdminPage = () => {
                 </p>
             </div>
 
+            {/* Advanced LLM Configuration */}
+            <div style={{ marginBottom: '24px', padding: '16px', background: '#F4F5F7', borderRadius: '4px' }}>
+                <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '16px', color: '#172B4D' }}>Advanced AI Parameters</h3>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {/* Temperature */}
+                    <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                            Temperature (0.0 - 1.0)
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={config.temperature !== undefined ? config.temperature : 0.7}
+                            onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
+                        />
+                    </div>
+
+                    {/* Top P */}
+                    <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                            Top P (0.0 - 1.0)
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={config.topP !== undefined ? config.topP : 0.9}
+                            onChange={(e) => setConfig({ ...config, topP: parseFloat(e.target.value) })}
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
+                        />
+                    </div>
+
+                    {/* Top K */}
+                    <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                            Top K (0 - 100)
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="1"
+                            value={config.topK !== undefined ? config.topK : 50}
+                            onChange={(e) => setConfig({ ...config, topK: parseInt(e.target.value) })}
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
+                        />
+                    </div>
+
+                    {/* Max Tokens */}
+                    <div>
+                        <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#444' }}>
+                            Max Tokens
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={config.maxTokens !== undefined ? config.maxTokens : 1000}
+                            onChange={(e) => setConfig({ ...config, maxTokens: parseInt(e.target.value) })}
+                            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #dfe1e6', width: '100%', fontSize: '14px' }}
+                        />
+                    </div>
+                </div>
+            </div>
+
             <button
                 onClick={handleSave}
                 disabled={saving}

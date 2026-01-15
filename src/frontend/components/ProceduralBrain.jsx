@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -14,6 +14,8 @@ const DotMaterial = new THREE.PointsMaterial({
 
 function BrainParticles({ count = 1500 }) {
     const mesh = useRef();
+    const [hovered, setHover] = useState(false);
+    const shockwave = useRef(0);
 
     // Generate brain-like particle layout
     const particles = useMemo(() => {
@@ -66,20 +68,42 @@ function BrainParticles({ count = 1500 }) {
         };
     }, [count]);
 
-    useFrame((state) => {
+    useFrame((state, delta) => {
         const time = state.clock.getElapsedTime();
         if (mesh.current) {
-            // Gentle floating rotation
-            // mesh.current.rotation.y = time * 0.2;
+            // 1. Rotation Interaction (Mouse Follow)
+            // Gently rotate, but speed up/tilt towards mouse cursor
+            // state.mouse.x is -1 to 1
+            mesh.current.rotation.y += delta * 0.2 + (state.mouse.x * delta * 0.5);
+            mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, state.mouse.y * 0.2, 0.1);
 
-            // Pulse effect (scale breathing)
-            const scale = 1 + Math.sin(time * 2) * 0.05;
-            mesh.current.scale.set(scale, scale, scale);
+            // 2. Shockwave Decay
+            shockwave.current = THREE.MathUtils.lerp(shockwave.current, 0, 0.05);
+
+            // 3. Pulse + Hover + Shockwave Scale
+            // Base pulse: sin wave
+            // Hover: adds 0.1 to scale
+            // Shockwave: adds burst
+            const baseScale = 1 + Math.sin(time * 2.5) * 0.05;
+            const hoverScale = hovered ? 0.1 : 0;
+            const impulseScale = shockwave.current * 0.4;
+
+            const finalScale = baseScale + hoverScale + impulseScale;
+            mesh.current.scale.set(finalScale, finalScale, finalScale);
         }
     });
 
+    const triggerShockwave = () => {
+        shockwave.current = 1.0;
+    };
+
     return (
-        <points ref={mesh}>
+        <points
+            ref={mesh}
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+            onClick={triggerShockwave}
+        >
             <bufferGeometry>
                 <bufferAttribute
                     attach="attributes-position"
@@ -101,7 +125,7 @@ function BrainParticles({ count = 1500 }) {
 
 const ProceduralBrain = () => {
     return (
-        <div style={{ width: '100%', height: '240px' }}>
+        <div style={{ width: '100%', height: '240px', cursor: 'pointer' }} title="Click me!">
             <Canvas camera={{ position: [0, 0, 7], fov: 60 }} dpr={[1, 2]}>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
@@ -109,8 +133,7 @@ const ProceduralBrain = () => {
                 <OrbitControls
                     enableZoom={false}
                     enablePan={false}
-                    autoRotate
-                    autoRotateSpeed={2.0}
+                    enableRotate={false} /* Disable manual drag rotation to let mouse-follow take over */
                 />
             </Canvas>
         </div>
