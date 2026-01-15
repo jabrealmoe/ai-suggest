@@ -21,6 +21,24 @@ const Swarm = () => {
     const mesh = useRef();
     const [hovered, setHover] = useState(false);
 
+    // Theme Awareness: Polling for CSS variable changes
+    const [particleColor, setParticleColor] = useState('#0052CC');
+
+    useEffect(() => {
+        const updateColor = () => {
+            // --ds-link is Blue in Light Mode (#0052CC) and Light Blue in Dark Mode (#4794FF)
+            const styles = getComputedStyle(document.documentElement);
+            const color = styles.getPropertyValue('--ds-link').trim();
+            // Fallback if variable is not set (e.g. dev env without tokens)
+            setParticleColor(color || '#0052CC');
+        };
+
+        updateColor();
+        // Poll for theme changes (cheap and effective for iframe context)
+        const interval = setInterval(updateColor, 2000);
+        return () => clearInterval(interval);
+    }, []);
+
     // Generate random positions (start) and target positions from Text (Canvas)
     const [positions, targets] = useMemo(() => {
         const pos = new Float32Array(count * 3);
@@ -176,8 +194,8 @@ const Swarm = () => {
     return (
         <instancedMesh ref={mesh} args={[null, null, count]} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
             <sphereGeometry args={[1, 8, 8]} />
-            {/* Using a nice cyan/blue gradient color */}
-            <meshStandardMaterial color={hovered ? "#36B37E" : "#0052CC"} transparent opacity={0.7} />
+            {/* Using the theme-aware text color */}
+            <meshStandardMaterial color={hovered ? "#36B37E" : particleColor} transparent opacity={0.7} />
         </instancedMesh>
     );
 };
