@@ -44,6 +44,18 @@ When a Jira issue is created or updated, **AI Suggest** automatically triggers a
     -   Click a card to see the **Detailed View** (full description).
     -   Click "Apply" to instantly update the Jira issue fields.
 
+## AI Agent Workflow
+
+The backend n8n workflow uses a sophisticated multi-agent routing system:
+
+1.  **Issue Classification**: Incoming requests are analyzed and routed to a specialized AI Agent based on the Jira Issue Type:
+    -   **Story Agent** (Claude 3.5 Sonnet): Focuses on narrative flow, acceptance criteria, and user value.
+    -   **Task/Incident Agent** (GPT-4o Mini): Focuses on technical detail, severity assessment, and operational steps.
+    -   **Service Request Agent**: Validates approval chains and business justification.
+
+2.  **Quality Scoring**: Every issue is evaluated against a strict rubric (0-100) covering clarity, scope, and risk.
+3.  **Automatic Renovation**: If an issue's Quality Score falls **below 60**, it is automatically forwarded to a **Gemini 2.0 Flash** agent for a complete, standard-compliant rewrite.
+
 ## Tech Stack
 
 -   **Platform:** Atlassian Forge (Jira Cloud)
@@ -69,8 +81,14 @@ graph TD
     ForgeTrigger -->|POST Payload| N8N[n8n AI Workflow]
     
     subgraph "External AI Processing"
-        N8N -->|Analyze| LLM["LLM (OpenAI/Anthropic)"]
-        LLM -->|Suggestions| N8N
+        N8N -->|Route by Type| Router{Issue Type?}
+        Router -->|Story| Anthropic[Claude Sonnet]
+        Router -->|Task/Incident| OpenAI[GPT-4o Mini]
+        Router -->|Rewrite Low Score| Gemini[Gemini 2.0 Flash]
+        
+        Anthropic -->|Score & Suggest| Aggregator
+        OpenAI -->|Score & Suggest| Aggregator
+        Gemini -->| rewritten Description| Aggregator
     end
     
     N8N -->|POST Result| ForgeWebhook[Forge Webhook Handler]
