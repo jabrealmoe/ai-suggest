@@ -69,7 +69,7 @@ graph TD
     ForgeTrigger -->|POST Payload| N8N[n8n AI Workflow]
     
     subgraph "External AI Processing"
-        N8N -->|Analyze| LLM[LLM (OpenAI/Anthropic)]
+        N8N -->|Analyze| LLM["LLM (OpenAI/Anthropic)"]
         LLM -->|Suggestions| N8N
     end
     
