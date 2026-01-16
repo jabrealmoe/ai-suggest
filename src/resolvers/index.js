@@ -183,7 +183,24 @@ resolver.define('applySuggestion', async (req) => {
     throw new Error(`Failed to update issue: ${response.statusText}`);
   }
 
+  // Track LLM Usage Stats for Reporting
+  try {
+    const modelName = suggestion.llm || 'Unknown Model';
+    const stats = await storage.get('llmUsageStats') || {};
+    stats[modelName] = (stats[modelName] || 0) + 1;
+    await storage.set('llmUsageStats', stats);
+    console.log(`Updated stats for ${modelName}: ${stats[modelName]}`);
+  } catch (e) {
+    console.error("Failed to update usage stats", e);
+    // Don't block the user action if analytics fail
+  }
+
   return { success: true };
+});
+
+resolver.define('getLlmUsageStats', async (req) => {
+  const stats = await storage.get('llmUsageStats');
+  return stats || {};
 });
 
 const handler = resolver.getDefinitions();

@@ -28,6 +28,7 @@ When a Jira issue is created or updated, **AI Suggest** automatically triggers a
 -   **Contextual Suggestions:** Displays AI-generated suggestions (e.g., "Refine Description", "Add Acceptance Criteria") in a custom UI panel.
 -   **Review Before Applying:** Users can click on a suggestion card to view the full details in a modal before deciding to apply it.
 -   **One-Click Application:** select a suggestion to automatically update the Jira issue with the proposed changes.
+-   **Analytics & Reporting:** Built-in tracking of accepted suggestions to monitor AI model performance and usage metrics.
 -   **Visual Polish:**
     -   **Premium UI:** Features a modern, clean interface with glassmorphism effects and smooth transitions.
     -   **Dynamic Loaders:** Includes whimsical, randomized loading animations (Brain/Neural Pulse, Coffee, Magic, Oven, Lightbulb, Plant) to keep users engaged while waiting for AI analysis.
@@ -58,3 +59,38 @@ You can configure the n8n connection, AI Model name, and the minimum confidence 
 4.  **n8n API Key**: Enter the `WEBTRIGGER_API_KEY` (Bearer token) for your webhook.
 5.  **Test Connection**: Click the "Test" button to verify the app can reach your n8n instance.
 6.  **Save Configuration**: Click "Save Configuration" to persist your settings.
+
+## System Architecture
+
+```mermaid
+graph TD
+    User((User)) -->|Creates/Updates Issue| Jira[Jira Cloud]
+    Jira -->|Trigger Event| ForgeTrigger[Forge App Trigger]
+    ForgeTrigger -->|POST Payload| N8N[n8n AI Workflow]
+    
+    subgraph "External AI Processing"
+        N8N -->|Analyze| LLM[LLM (OpenAI/Anthropic)]
+        LLM -->|Suggestions| N8N
+    end
+    
+    N8N -->|POST Result| ForgeWebhook[Forge Webhook Handler]
+    ForgeWebhook -->|Store Data| DB[(Forge Storage)]
+    
+    User -->|View Issue| UI[Suggestion Panel]
+    UI -->|Read Suggestions| DB
+    
+    User -->|Apply Suggestion| ApplyFn[Apply Resolver]
+    ApplyFn -->|Update Fields| Jira
+    ApplyFn -->|Track Usage| Analytics[(Analytics Storage)]
+    
+    Admin((Admin)) -->|View Reports| ReportsUI[Admin Page Reports]
+    ReportsUI -->|Read Stats| Analytics
+```
+
+## Analytics & Reporting
+
+The application includes a centralized **Reports Dashboard** for administrators:
+- **Usage Telemetry**: Automatically tracks the AI model source (e.g., GPT-4, Claude) for every accepted suggestion.
+- **Impact Analysis**: Visualizes the distribution of applied suggestions to measure which models are most effective.
+- **Real-time Data**: The dashboard updates instantly as users interact with suggestions.
+
