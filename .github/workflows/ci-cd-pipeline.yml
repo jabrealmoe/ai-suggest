@@ -78,7 +78,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git fetch origin staging
           git checkout staging
-          git merge development
+          git merge development --allow-unrelated-histories -X theirs
           git push origin staging
 
   # ------------------------------------------------------------------
@@ -126,7 +126,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git fetch origin main
           git checkout main
-          git merge staging
+          git merge staging --allow-unrelated-histories -X theirs
           git push origin main
 
   # ------------------------------------------------------------------
