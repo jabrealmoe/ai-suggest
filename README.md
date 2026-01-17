@@ -21,7 +21,8 @@ graph LR
 
     subgraph "Staging"
         AutoMergeStaging --> StagingDeploy[Deploy to Staging Env]
-        StagingDeploy -->|Success| AutoMergeMain[Auto-Merge to 'main']
+        StagingDeploy --> Playwright[Playwright UI Tests]
+        Playwright -->|Success| AutoMergeMain[Auto-Merge to 'main']
     end
 
     subgraph "Production"
@@ -36,7 +37,8 @@ graph LR
 1.  **Development**: Work is pushed to the `development` branch. This triggers a deployment to the `development` environment.
     - _Promotion_: Upon success, the pipeline automatically merges the code into `staging` using a `chore(release)` commit.
 2.  **Staging**: The push to `staging` triggers a deployment to the `staging` environment.
-    - _Promotion_: Upon success, the pipeline automatically merges the code into `main` using a `chore(release)` commit.
+    - _Verification_: **Playwright UI Tests** run against the staging environment.
+    - _Promotion_: Only if tests pass, the pipeline automatically merges the code into `main` using a `chore(release)` commit.
 3.  **Production**: The push to `main` triggers the final deployment to the `production` environment.
 
 ### Automated Commits
