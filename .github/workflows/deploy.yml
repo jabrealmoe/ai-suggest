@@ -62,6 +62,8 @@ jobs:
           forge whoami || echo "Note: Authentication will happen during deploy"
 
       - name: Lint Forge app
+        env:
+          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
         run: |
           forge settings set usage-analytics false
           forge lint
