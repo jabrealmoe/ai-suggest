@@ -71,6 +71,15 @@ jobs:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
       - name: Integration Tests
         run: npm run test:integration
+      - name: Promote to Staging
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin staging
+          git checkout staging
+          git merge development
+          git push origin staging
 
   # ------------------------------------------------------------------
   # Stage 3: Staging Deployment
@@ -110,13 +119,22 @@ jobs:
         run: npm run test:e2e
       - name: Performance Tests
         run: npm run test:perf
+      - name: Promote to Production
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git checkout main
+          git merge staging
+          git push origin main
 
   # ------------------------------------------------------------------
   # Stage 4: Versioning
   # ------------------------------------------------------------------
   versioning:
     name: 4. Semantic Versioning
-    needs: [qa]
+    needs: [deploy-staging]
     # Only run if coming from staging (or main if that's your flow)
     # The user asked for "Trigger on push to main/develop/staging"
     # Typically main -> production.
