@@ -1,13 +1,19 @@
 name: Deploy to Forge
 
 on:
+  # Deploy to Staging on push to main
   push:
+    branches:
+      - main
+      - develop
     tags:
-      - "v*.*.*"
+      - "v*"
+
+  # Allow manual deployment to any environment
   workflow_dispatch:
     inputs:
       environment:
-        description: "Forge environment to deploy to"
+        description: "Target Environment"
         required: true
         default: "development"
         type: choice
@@ -18,6 +24,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -33,65 +40,67 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run Tests (Unit & Backend)
+        run: |
+          npm test
+          npm run test:backend
+
       - name: Build project
         run: npm run build
 
       - name: Install Forge CLI
         run: npm install -g @forge/cli
 
-      - name: Check for FORGE_API_TOKEN
+      - name: Determine Target Environment
+        id: target-env
         run: |
-          if [ -z "${{ secrets.FORGE_API_TOKEN }}" ]; then
-            echo "⚠ Error: FORGE_API_TOKEN secret is not configured"
-            echo ""
-            echo "To enable automated deployment:"
-            echo "1. Create a Forge API token: https://developer.atlassian.com/console/myapps/"
-            echo "2. Add it as a GitHub secret named FORGE_API_TOKEN"
-            echo "3. Repository Settings > Secrets and variables > Actions > New repository secret"
-            exit 1
+          TARGET_ENV="development"
+
+          # 1. Manual Trigger
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TARGET_ENV="${{ github.event.inputs.environment }}"
+            
+          # 2. Tag -> Production
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TARGET_ENV="production"
+            
+          # 3. Main -> Staging
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            TARGET_ENV="staging"
+            
+          # 4. Develop -> Development
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            TARGET_ENV="development"
           fi
-          echo "✓ FORGE_API_TOKEN is configured"
+
+          echo "Selected Environment: $TARGET_ENV"
+          echo "env=$TARGET_ENV" >> $GITHUB_OUTPUT
 
       - name: Authenticate with Forge
         env:
-          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
           FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
-        run: |
-          # Forge CLI uses environment variable for authentication
-          # The token should be set as a GitHub secret
-          echo "Authenticating with Forge..."
-          forge whoami || echo "Note: Authentication will happen during deploy"
-
-      - name: Lint Forge app
-        env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
-          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
         run: |
-          forge settings set usage-analytics false
-          forge lint
-
-      - name: Deploy to Forge
-        env:
-          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
-          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
-        run: |
-          ENV="${{ github.event.inputs.environment }}"
-
-          if [ -z "$ENV" ]; then
-            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-              ENV="production"
-            else
-              ENV="development"
-            fi
+          if [ -z "$FORGE_EMAIL" ] || [ -z "$FORGE_API_TOKEN" ]; then
+            echo "::error::Secrets FORGE_EMAIL and FORGE_API_TOKEN are required."
+            exit 1
           fi
+          # Disable analytics to prevent prompt
+          forge settings set usage-analytics false
+          echo "Authenticating..."
+          # Login not strictly needed if env vars are set, but good for verification if needed
+          # Forge CLI reads env vars automatically for commands
 
-          echo "Deploying to $ENV environment..."
-          forge deploy --non-interactive -e $ENV
-
-      - name: Deployment summary
-        if: success()
+      - name: Deploy to ${{ steps.target-env.outputs.env }}
+        env:
+          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
+          FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
         run: |
-          echo "✓ Deployment successful"
-          echo "Environment: ${{ github.event.inputs.environment || 'development' }}"
-          echo "Commit: ${{ github.sha }}"
-          echo "Triggered by: ${{ github.actor }}"
+          ENVIRONMENT="${{ steps.target-env.outputs.env }}"
+          echo "🚀 Deploying to $ENVIRONMENT..."
+
+          forge deploy --verbose --non-interactive -e $ENVIRONMENT
+
+      - name: Verify Deployment
+        if: success()
+        run: echo "✅ Successfully deployed to ${{ steps.target-env.outputs.env }}"
