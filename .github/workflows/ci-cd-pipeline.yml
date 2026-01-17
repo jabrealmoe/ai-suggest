@@ -218,6 +218,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.prev_tag.outputs.previous_tag }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
       - name: Deploy Previous Version
         run: |
           if [ -z "${{ steps.prev_tag.outputs.previous_tag }}" ]; then
