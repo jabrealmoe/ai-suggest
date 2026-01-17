@@ -1,4 +1,4 @@
-# AI Suggest - Jira Cloud Forge App
+# Dr. Jira Suggest - An AI Agent for Jira Cloud
 
 ![The Witty Wizard](assets/wizard.png)
 
@@ -129,8 +129,8 @@ For fine-grained control over the AI model's output, you can adjust the followin
 | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
 | **Temperature** | Controls the "creativity" of the model. Lower values (e.g., 0.2) make it more focused and deterministic; higher values (e.g., 0.8) make it more diverse. | `0.7`   |
 | **Top P**       | Nucleus sampling. The model considers the results of the tokens with top_p probability mass.                                                             | `0.9`   |
-| **Top K**       | Limits the next token selection to the K most likely tokens. Set to `-1` to disable.                                                                     | `50`    |
-| **Max Tokens**  | The maximum number of tokens to generate in the response.                                                                                                | `1000`  |
+| **Top K**       | Limits the next token selection to the K most likely tokens. Set to `-1` to disable.                                                                     | `-1`    |
+| **Max Tokens**  | The maximum number of tokens to generate in the response.                                                                                                | `4096`  |
 
 ## System Architecture
 
