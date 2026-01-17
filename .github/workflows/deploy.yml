@@ -55,6 +55,7 @@ jobs:
       - name: Authenticate with Forge
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
+          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
         run: |
           # Forge CLI uses environment variable for authentication
           # The token should be set as a GitHub secret
@@ -64,6 +65,7 @@ jobs:
       - name: Lint Forge app
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
+          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
         run: |
           forge settings set usage-analytics false
           forge lint
@@ -71,6 +73,7 @@ jobs:
       - name: Deploy to Forge
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
+          FORGE_EMAIL: ${{ secrets.FORGE_EMAIL }}
         run: |
           ENV="${{ github.event.inputs.environment }}"
 
