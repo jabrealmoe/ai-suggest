@@ -3,7 +3,6 @@
 ![The Witty Wizard](assets/wizard.png)
 
 AI Suggest is a Jira Cloud Forge application designed to intelligently assist users by suggesting improvements to Jira issues. It leverages an external AI agent (via n8n webhooks) to analyze issue data and provide actionable suggestions, such as improved descriptions, summaries, or other enhancements.
-
 ## Demos
 
 <p align="center">
