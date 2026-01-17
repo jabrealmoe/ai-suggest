@@ -21,7 +21,7 @@ graph LR
 
     subgraph "Staging"
         AutoMergeStaging --> StagingDeploy[Deploy to Staging Env]
-        StagingDeploy --> Playwright[Playwright UI Tests]
+        StagingDeploy --> Playwright{{Playwright UI Tests}}
         Playwright -->|Success| AutoMergeMain[Auto-Merge to 'main']
     end
 
@@ -31,6 +31,7 @@ graph LR
 
     style DevPush fill:#E3FCEF,stroke:#006644
     style StagingDeploy fill:#DEEBFF,stroke:#0747A6
+    style Playwright fill:#EAE6FF,stroke:#403294,stroke-width:2px,stroke-dasharray: 5 5
     style ProdDeploy fill:#FFEBE6,stroke:#DE350B
 ```
 
