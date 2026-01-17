@@ -44,7 +44,7 @@ describe('AdminPage Component', () => {
         });
 
         // Check Header
-        expect(screen.getByText(/AI Suggest Configurations/i)).toBeInTheDocument();
+        expect(screen.getByText(/Dr. Jira Admin/i)).toBeInTheDocument();
 
         // Check Inputs
         expect(screen.getByDisplayValue('85')).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('AdminPage Component', () => {
         invoke.mockResolvedValueOnce({}); 
 
         render(<AdminPage />);
-        await waitFor(() => screen.getByText(/AI Suggest Configurations/i));
+        await waitFor(() => screen.getByText(/Dr. Jira Admin/i));
 
         const testButton = screen.getByText('Test');
         expect(testButton).toBeInTheDocument();

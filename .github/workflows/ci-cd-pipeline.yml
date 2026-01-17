@@ -2,7 +2,7 @@ name: Comprehensive Forge CI/CD
 
 on:
   push:
-    branches: [main, develop, staging]
+    branches: [main, development, staging]
 
 permissions:
   contents: write
@@ -40,7 +40,7 @@ jobs:
   deploy-dev:
     name: 2. Deploy Dev
     needs: qa
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     environment:
       name: development
@@ -56,6 +56,8 @@ jobs:
         run: |
           npm install -g @forge/cli
           npm ci
+      - name: Build
+        run: npm run build
       - name: Authenticate
         run: |
           forge settings set usage-analytics false
@@ -92,6 +94,8 @@ jobs:
         run: |
           npm install -g @forge/cli
           npm ci
+      - name: Build
+        run: npm run build
       - name: Authenticate
         run: forge settings set usage-analytics false
         env:
@@ -153,6 +157,8 @@ jobs:
         run: |
           npm install -g @forge/cli
           npm ci
+      - name: Build
+        run: npm run build
       - name: Authenticate
         run: forge settings set usage-analytics false
         env:
