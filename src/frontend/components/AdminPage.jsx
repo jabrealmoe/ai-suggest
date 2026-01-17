@@ -97,7 +97,7 @@ const AdminPage = () => {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <h1 style={{ margin: 0, fontSize: '24px', color: 'var(--ds-text, #172B4D)' }}>
-                    Dr. Jira Suggest Config <span style={{ fontSize: '12px', background: '#DEEBFF', color: '#0747A6', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle' }}>v3.1 (DEV)</span>
+                    Dr. Jira Suggest Config
                 </h1>
             </div>
 
