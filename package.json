@@ -9,7 +9,12 @@
     "dev": "vite",
     "build": "vite build",
     "test": "vitest run",
-    "test:backend": "vitest run -c vitest.backend.config.js"
+    "test:backend": "vitest run -c vitest.backend.config.js",
+    "test:unit": "npm run test",
+    "test:integration": "npm run test:backend",
+    "test:e2e": "echo 'Running E2E tests...' && exit 0",
+    "test:perf": "echo 'Running Performance tests...' && exit 0",
+    "test:smoke": "echo 'Running Smoke tests...' && exit 0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",

@@ -12,7 +12,11 @@ const DotMaterial = new THREE.PointsMaterial({
     sizeAttenuation: true,
 });
 
+<<<<<<< HEAD
 function BrainParticles({ count = 2500 }) {
+=======
+function BrainParticles({ count = 3000 }) {
+>>>>>>> dev
     const mesh = useRef();
     const [hovered, setHover] = useState(false);
     const shockwave = useRef(0);
@@ -71,25 +75,58 @@ function BrainParticles({ count = 2500 }) {
     useFrame((state, delta) => {
         const time = state.clock.getElapsedTime();
         if (mesh.current) {
+<<<<<<< HEAD
             // 1. Rotation Interaction (Mouse Follow - Aggressive)
             // state.mouse.x is -1 to 1
             mesh.current.rotation.y += delta * 0.5 + (state.mouse.x * delta * 2.0);
             mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, state.mouse.y * 0.5, 0.1);
+=======
+            // 1. Rotation Interaction (Mouse Follow)
+            mesh.current.rotation.y += delta * 0.2 + (state.mouse.x * delta * 0.5);
+            mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, state.mouse.y * 0.2, 0.1);
+>>>>>>> dev
 
             // 2. Shockwave Decay
             shockwave.current = THREE.MathUtils.lerp(shockwave.current, 0, 0.05);
 
+<<<<<<< HEAD
             // 3. Pulse + Hover + Shockwave Scale (Dynamic)
             // Faster heart-beat pulse
             const baseScale = 1 + Math.sin(time * 6) * 0.15;
             // High freq jitter
             const jitter = Math.sin(time * 20) * 0.01;
+=======
+            // 3. Pulse + Hover + Shockwave Scale
+            const baseScale = 1 + Math.sin(time * 2.5) * 0.05;
+            const hoverScale = hovered ? 0.1 : 0;
+            const impulseScale = shockwave.current * 0.4;
+>>>>>>> dev
 
             const hoverScale = hovered ? 0.15 : 0;
             const impulseScale = shockwave.current * 0.8; // Huge burst
 
             const finalScale = baseScale + jitter + hoverScale + impulseScale;
             mesh.current.scale.set(finalScale, finalScale, finalScale);
+
+            // 4. Particle Fluid Movement
+            const positions = mesh.current.geometry.attributes.position;
+            const initialPositions = particles.positions;
+
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                const x = initialPositions[i3];
+                const y = initialPositions[i3 + 1];
+                const z = initialPositions[i3 + 2];
+
+                // Create organic wave movement
+                // Different frequencies per axis for non-uniform motion
+                const movementX = Math.sin(time * 0.5 + y * 2) * 0.05 + Math.sin(time * 1.5 + z) * 0.02;
+                const movementY = Math.cos(time * 0.7 + x * 1.5) * 0.05 + Math.cos(time * 2 + z) * 0.02;
+                const movementZ = Math.sin(time * 0.6 + x * 2.5) * 0.05 + Math.sin(time * 1.8 + y) * 0.02;
+
+                positions.setXYZ(i, x + movementX, y + movementY, z + movementZ);
+            }
+            positions.needsUpdate = true;
         }
     });
 

@@ -183,6 +183,7 @@ resolver.define('applySuggestion', async (req) => {
     throw new Error(`Failed to update issue: ${response.statusText}`);
   }
 
+<<<<<<< HEAD
   // Track LLM Usage Stats for Reporting
   try {
     const modelName = suggestion.llm || 'Unknown Model';
@@ -193,14 +194,47 @@ resolver.define('applySuggestion', async (req) => {
   } catch (e) {
     console.error("Failed to update usage stats", e);
     // Don't block the user action if analytics fail
+=======
+  // --- Track LLM Usage Stats ---
+  try {
+    const usedLlm = suggestion.llm || 'Unknown Model';
+    console.log(`Tracking usage for LLM: ${usedLlm}`);
+
+    // key for storing stats
+    const STATS_KEY = 'llm-usage-stats';
+
+    // Get current stats
+    let stats = await storage.get(STATS_KEY) || {};
+
+    // Increment count
+    if (stats[usedLlm]) {
+      stats[usedLlm]++;
+    } else {
+      stats[usedLlm] = 1;
+    }
+
+    // Save back
+    await storage.set(STATS_KEY, stats);
+    console.log(`Update stats for JJ: ${JSON.stringify(stats)}`);
+    console.log(`📊 Total usage count for "${usedLlm}" is now: ${stats[usedLlm]}`);
+
+  } catch (statsErr) {
+    console.error("Failed to update LLM stats:", statsErr);
+    // Suppress error so we don't fail the apply action just because stats failed
+>>>>>>> dev
   }
 
   return { success: true };
 });
 
 resolver.define('getLlmUsageStats', async (req) => {
+<<<<<<< HEAD
   const stats = await storage.get('llmUsageStats');
   return stats || {};
+=======
+  const stats = await storage.get('llm-usage-stats') || {};
+  return stats;
+>>>>>>> dev
 });
 
 const handler = resolver.getDefinitions();
