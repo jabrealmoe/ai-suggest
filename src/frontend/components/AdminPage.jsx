@@ -512,6 +512,17 @@ const AdminPage = () => {
                     )}
                 </>
             )}
+            {/* Version Footer */}
+            <div style={{
+                marginTop: '40px',
+                textAlign: 'center',
+                fontSize: '11px',
+                color: 'var(--ds-text-subtlest, #97A0AF)',
+                borderTop: '1px solid var(--ds-border, #EBECF0)',
+                paddingTop: '10px'
+            }}>
+                Dr. Jira Suggest &bull; v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'Local'}
+            </div>
         </div>
     );
 };
