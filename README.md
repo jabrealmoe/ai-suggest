@@ -121,6 +121,17 @@ You can configure the n8n connection, AI Model name, and the minimum confidence 
 5.  **Test Connection**: Click the "Test" button to verify the app can reach your n8n instance.
 6.  **Save Configuration**: Click "Save Configuration" to persist your settings.
 
+### Advanced AI Parameters
+
+For fine-grained control over the AI model's output, you can adjust the following settings:
+
+| Parameter       | Description                                                                                                                                              | Default |
+| :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
+| **Temperature** | Controls the "creativity" of the model. Lower values (e.g., 0.2) make it more focused and deterministic; higher values (e.g., 0.8) make it more diverse. | `0.7`   |
+| **Top P**       | Nucleus sampling. The model considers the results of the tokens with top_p probability mass.                                                             | `0.9`   |
+| **Top K**       | Limits the next token selection to the K most likely tokens. Set to `-1` to disable.                                                                     | `50`    |
+| **Max Tokens**  | The maximum number of tokens to generate in the response.                                                                                                | `1000`  |
+
 ## System Architecture
 
 ```mermaid
