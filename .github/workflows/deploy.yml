@@ -3,13 +3,13 @@ name: Deploy to Forge
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Forge environment to deploy to'
+        description: "Forge environment to deploy to"
         required: true
-        default: 'development'
+        default: "development"
         type: choice
         options:
           - development
@@ -19,26 +19,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
-      
+          node-version: "20.x"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build project
         run: npm run build
-      
+
       - name: Install Forge CLI
         run: npm install -g @forge/cli
-      
+
       - name: Check for FORGE_API_TOKEN
         run: |
           if [ -z "${{ secrets.FORGE_API_TOKEN }}" ]; then
@@ -51,7 +51,7 @@ jobs:
             exit 1
           fi
           echo "✓ FORGE_API_TOKEN is configured"
-      
+
       - name: Authenticate with Forge
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
@@ -60,16 +60,18 @@ jobs:
           # The token should be set as a GitHub secret
           echo "Authenticating with Forge..."
           forge whoami || echo "Note: Authentication will happen during deploy"
-      
+
       - name: Lint Forge app
-        run: forge lint
-      
+        run: |
+          forge settings set usage-analytics false
+          forge lint
+
       - name: Deploy to Forge
         env:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
         run: |
           ENV="${{ github.event.inputs.environment }}"
-          
+
           if [ -z "$ENV" ]; then
             if [ "${{ github.ref }}" == "refs/heads/main" ]; then
               ENV="production"
@@ -77,10 +79,10 @@ jobs:
               ENV="development"
             fi
           fi
-          
+
           echo "Deploying to $ENV environment..."
           forge deploy --non-interactive -e $ENV
-      
+
       - name: Deployment summary
         if: success()
         run: |
@@ -88,5 +90,3 @@ jobs:
           echo "Environment: ${{ github.event.inputs.environment || 'development' }}"
           echo "Commit: ${{ github.sha }}"
           echo "Triggered by: ${{ github.actor }}"
-
-
