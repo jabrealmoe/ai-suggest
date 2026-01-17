@@ -116,7 +116,7 @@ jobs:
   # ------------------------------------------------------------------
   versioning:
     name: 4. Semantic Versioning
-    needs: [deploy-staging]
+    needs: [qa]
     # Only run if coming from staging (or main if that's your flow)
     # The user asked for "Trigger on push to main/develop/staging"
     # Typically main -> production.
