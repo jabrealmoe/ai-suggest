@@ -349,3 +349,26 @@ h1 {
 .suggestion-card:nth-child(10) {
   animation-delay: 3.50s;
 }
+
+/* Mobile Responsive Helpers for Admin Page */
+/* Wrap flex containers on small screens */
+.mobile-wrap {
+  flex-wrap: wrap;
+}
+
+/* Adjust button widths on mobile if needed */
+@media (max-width: 480px) {
+  .mobile-stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .mobile-stack > button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-container {
+      padding: 16px !important;
+  }
+}

@@ -42,6 +42,7 @@ const AdminPage = () => {
 
     const [reportData, setReportData] = useState(null);
     const [loadingReport, setLoadingReport] = useState(true);
+    const [selectedSlice, setSelectedSlice] = useState(null);
 
     useEffect(() => {
         // Load Config
@@ -85,7 +86,7 @@ const AdminPage = () => {
     if (loading) return <div style={{ padding: '20px' }}>Loading settings...</div>;
 
     return (
-        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: 'var(--ds-text, #172B4D)' }}>
+        <div className="admin-container" style={{ padding: '24px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: 'var(--ds-text, #172B4D)' }}>
 
             {/* 🐝 Particle Swarm Animation with Error Protection */}
             <SwarmErrorBoundary>
@@ -201,7 +202,7 @@ const AdminPage = () => {
                         <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
                             N8N Webhook URL
                         </label>
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className="mobile-stack" style={{ display: 'flex', gap: '10px' }}>
                             <input
                                 type="url"
                                 value={config.n8nUrl || ''}
@@ -424,6 +425,7 @@ const AdminPage = () => {
                                 <div style={{ marginBottom: '20px' }}>
                                     <ThreeDonutChart
                                         data={Object.entries(reportData).map(([name, value]) => ({ name, value }))}
+                                        onSegmentClick={(label, value) => setSelectedSlice({ label, value })}
                                     />
                                 </div>
 
@@ -442,6 +444,63 @@ const AdminPage = () => {
                                     <h2 style={{ margin: 0, fontSize: '32px', color: 'var(--ds-text, #172B4D)' }}>{totalUsage}</h2>
                                     <span style={{ fontSize: '14px', color: 'var(--ds-text-subtle, #5E6C84)' }}>Total Suggestions Applied</span>
                                 </div>
+
+                                {/* Dynamic Theme Summarization Area */}
+                                {selectedSlice && (
+                                    <div style={{
+                                        marginTop: '24px',
+                                        padding: '20px',
+                                        backgroundColor: 'var(--ds-surface-overlay, #F4F5F7)',
+                                        borderRadius: '8px',
+                                        border: '1px dashed var(--ds-border, #dfe1e6)',
+                                        animation: 'fadeIn 0.3s ease-in-out'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                            <h4 style={{ margin: 0, fontSize: '16px', color: 'var(--ds-text, #172B4D)' }}>
+                                                Summarize Themes: {selectedSlice.label}
+                                            </h4>
+                                            <span style={{ fontSize: '12px', background: 'var(--ds-background-neutral, #DFE1E6)', padding: '2px 8px', borderRadius: '10px' }}>
+                                                {selectedSlice.value} Issues
+                                            </span>
+                                        </div>
+                                        
+                                        <p style={{ fontSize: '14px', color: 'var(--ds-text-subtle, #5E6C84)', marginBottom: '16px' }}>
+                                            Aggregate issue keys associated with this segment and identify common themes using AI.
+                                        </p>
+
+                                        <div className="mobile-stack" style={{ display: 'flex', gap: '10px' }}>
+                                            <button 
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: 'var(--ds-background-brand-bold, #0052CC)',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    fontWeight: '500',
+                                                    cursor: 'pointer',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                }}
+                                                onClick={() => alert(`Simulating: Sending ${selectedSlice.value} issue keys for "${selectedSlice.label}" to n8n for summarization...`)}
+                                            >
+                                                Generate Summary
+                                            </button>
+                                            <button 
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: 'transparent',
+                                                    color: 'var(--ds-text, #42526E)',
+                                                    border: '1px solid var(--ds-border, #dfe1e6)',
+                                                    borderRadius: '4px',
+                                                    fontWeight: '500',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onClick={() => setSelectedSlice(null)}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid var(--ds-border, #ebecf0)', textAlign: 'center', fontSize: '12px', color: 'var(--ds-text-subtle, #5E6C84)' }}>
                                     <p>Distribution of AI Models used for accepted suggestions.</p>

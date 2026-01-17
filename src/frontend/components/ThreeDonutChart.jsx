@@ -5,7 +5,7 @@ import * as THREE from 'three';
 
 const COLORS = ['#0052CC', '#36B37E', '#FFAB00', '#FF5630', '#6554C0', '#00B8D9'];
 
-const ArcSlice = ({ startAngle, endAngle, color, radius, innerRadius, height, label, value, percentage, onHover, isActive }) => {
+const ArcSlice = ({ startAngle, endAngle, color, radius, innerRadius, height, label, value, percentage, onHover, onClick, isActive }) => {
     const mesh = useRef();
     const [hovered, setHovered] = useState(false);
 
@@ -61,13 +61,14 @@ const ArcSlice = ({ startAngle, endAngle, color, radius, innerRadius, height, la
             geometry={geometry}
             onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(label, value, percentage); }}
             onPointerOut={(e) => { setHovered(false); onHover(null); }}
+            onClick={(e) => { e.stopPropagation(); onClick(label, value, percentage); }}
         >
             <meshStandardMaterial color={color} metalness={0.3} roughness={0.4} />
         </mesh>
     );
 };
 
-const DonutGroup = ({ data, onUpdateTooltip }) => {
+const DonutGroup = ({ data, onUpdateTooltip, onSegmentClick }) => {
     const groupRef = useRef();
 
     // Constant nice rotation
@@ -108,6 +109,7 @@ const DonutGroup = ({ data, onUpdateTooltip }) => {
                         value={item.value}
                         percentage={percentage}
                         onHover={onUpdateTooltip}
+                        onClick={onSegmentClick}
                     />
                 );
             })}
@@ -115,7 +117,7 @@ const DonutGroup = ({ data, onUpdateTooltip }) => {
     );
 };
 
-const ThreeDonutChart = ({ data }) => {
+const ThreeDonutChart = ({ data, onSegmentClick }) => {
     const [tooltipState, setTooltipState] = useState(null);
 
     const handleHover = (label, value, percentage) => {
@@ -139,6 +141,7 @@ const ThreeDonutChart = ({ data }) => {
                     <DonutGroup
                         data={data}
                         onUpdateTooltip={handleHover}
+                        onSegmentClick={onSegmentClick}
                     />
                 )}
                 <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 4} maxPolarAngle={Math.PI / 1.5} />
