@@ -71,6 +71,15 @@ jobs:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
       - name: Integration Tests
         run: npm run test:integration
+      - name: Promote to Staging
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin staging
+          git checkout staging
+          git merge development --allow-unrelated-histories -X theirs
+          git push origin staging
 
   # ------------------------------------------------------------------
   # Stage 3: Staging Deployment
@@ -110,13 +119,22 @@ jobs:
         run: npm run test:e2e
       - name: Performance Tests
         run: npm run test:perf
+      - name: Promote to Production
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git checkout main
+          git merge staging --allow-unrelated-histories -X theirs
+          git push origin main
 
   # ------------------------------------------------------------------
   # Stage 4: Versioning
   # ------------------------------------------------------------------
   versioning:
     name: 4. Semantic Versioning
-    needs: [deploy-staging]
+    needs: [qa]
     # Only run if coming from staging (or main if that's your flow)
     # The user asked for "Trigger on push to main/develop/staging"
     # Typically main -> production.
@@ -200,6 +218,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.prev_tag.outputs.previous_tag }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
       - name: Deploy Previous Version
         run: |
           if [ -z "${{ steps.prev_tag.outputs.previous_tag }}" ]; then

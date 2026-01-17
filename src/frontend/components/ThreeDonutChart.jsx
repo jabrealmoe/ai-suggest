@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Text, Html, OrbitControls } from '@react-three/drei';
+import { Text, Html, OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
 const COLORS = ['#0052CC', '#36B37E', '#FFAB00', '#FF5630', '#6554C0', '#00B8D9'];
@@ -59,6 +59,8 @@ const ArcSlice = ({ startAngle, endAngle, color, radius, innerRadius, height, la
         <mesh
             ref={mesh}
             geometry={geometry}
+            castShadow
+            receiveShadow
             onPointerOver={(e) => { e.stopPropagation(); setHovered(true); onHover(label, value, percentage); }}
             onPointerOut={(e) => { setHovered(false); onHover(null); }}
             onClick={(e) => { e.stopPropagation(); onClick(label, value, percentage); }}
@@ -132,9 +134,9 @@ const ThreeDonutChart = ({ data, onSegmentClick }) => {
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '300px' }}>
-            <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
-                <ambientLight intensity={0.8} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
+            <Canvas shadows camera={{ position: [0, 0, 8], fov: 45 }}>
+                <ambientLight intensity={0.4} />
+                <pointLight position={[10, 10, 10]} intensity={1} castShadow shadow-mapSize={[1024, 1024]} />
                 <pointLight position={[-10, -10, -10]} intensity={0.5} />
 
                 {data.some(d => d.value > 0) && (
@@ -145,6 +147,7 @@ const ThreeDonutChart = ({ data, onSegmentClick }) => {
                     />
                 )}
                 <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 4} maxPolarAngle={Math.PI / 1.5} />
+                <ContactShadows position={[0, -2, 0]} opacity={0.5} scale={10} blur={2} far={4} />
             </Canvas>
 
             {/* HTML Overlay Tooltip inside the container */}
