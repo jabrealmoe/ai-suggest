@@ -47,6 +47,9 @@ jobs:
       url: ${{ vars.DEV_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -71,6 +74,15 @@ jobs:
           FORGE_API_TOKEN: ${{ secrets.FORGE_API_TOKEN }}
       - name: Integration Tests
         run: npm run test:integration
+      - name: Promote to Staging
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin staging
+          git checkout staging
+          git merge development --allow-unrelated-histories -X theirs -m "chore(release): Promote Development to Staging"
+          git push origin staging
 
   # ------------------------------------------------------------------
   # Stage 3: Staging Deployment
@@ -85,6 +97,9 @@ jobs:
       url: ${{ vars.STAGING_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -110,6 +125,15 @@ jobs:
         run: npm run test:e2e
       - name: Performance Tests
         run: npm run test:perf
+      - name: Promote to Production
+        if: success()
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git checkout main
+          git merge staging --allow-unrelated-histories -X theirs -m "chore(release): Promote Staging to Production"
+          git push origin main
 
   # ------------------------------------------------------------------
   # Stage 4: Versioning
@@ -187,6 +211,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
       - name: Install Forge
         run: npm install -g @forge/cli
       - name: Find Previous Tag
@@ -200,6 +225,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.prev_tag.outputs.previous_tag }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
       - name: Deploy Previous Version
         run: |
           if [ -z "${{ steps.prev_tag.outputs.previous_tag }}" ]; then
