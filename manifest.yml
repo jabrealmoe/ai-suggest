@@ -34,7 +34,7 @@ resources:
     path: dist
 app:
   runtime:
-    name: nodejs24.x
+    name: nodejs22.x
     memoryMB: 256
     architecture: arm64
   id: ari:cloud:ecosystem::app/93faffed-829c-49c3-a47b-defb8756d019
