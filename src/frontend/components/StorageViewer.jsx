@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { invoke } from '@forge/bridge';
 
 const StorageViewer = () => {
@@ -7,6 +7,10 @@ const StorageViewer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandingKeys, setExpandingKeys] = useState({}); // Track expanded rows
+
+  // Filtering State
+  const [keyFilter, setKeyFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('ALL');
 
   const fetchStorage = async (reset = false) => {
     setLoading(true);
@@ -32,6 +36,21 @@ const StorageViewer = () => {
   const toggleExpand = (key) => {
     setExpandingKeys(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  // Filter Logic
+  const filteredItems = useMemo(() => {
+    return items.filter(item => {
+      const matchKey = item.key.toLowerCase().includes(keyFilter.toLowerCase());
+      
+      let type = typeof item.value;
+      if (Array.isArray(item.value)) type = 'array';
+      if (item.value === null) type = 'null';
+      
+      const matchType = typeFilter === 'ALL' || type === typeFilter.toLowerCase();
+      
+      return matchKey && matchType;
+    });
+  }, [items, keyFilter, typeFilter]);
 
   const renderValue = (value, key) => {
     const isExpanded = expandingKeys[key];
@@ -92,6 +111,53 @@ const StorageViewer = () => {
             </button>
         </div>
 
+        {/* Filters */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', padding: '12px', backgroundColor: 'var(--ds-surface-overlay, #F4F5F7)', borderRadius: '4px' }}>
+            <div style={{ flex: 1 }}>
+                <input 
+                    type="text" 
+                    placeholder="Filter by Key..." 
+                    value={keyFilter}
+                    onChange={(e) => setKeyFilter(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        boxSizing: 'border-box'
+                    }}
+                />
+            </div>
+            <div style={{ width: '150px' }}>
+                <select 
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--ds-border-input, #dfe1e6)',
+                        backgroundColor: 'var(--ds-background-input, #ffffff)',
+                        height: '100%' // Match input height
+                    }}
+                >
+                    <option value="ALL">All Types</option>
+                    <option value="string">String</option>
+                    <option value="object">Object</option>
+                    <option value="array">Array</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                </select>
+            </div>
+        </div>
+
+        {/* Info Bar */}
+        {(keyFilter || typeFilter !== 'ALL') && (
+             <div style={{ marginBottom: '10px', fontSize: '12px', color: 'var(--ds-text-subtle, #5E6C84)' }}>
+                Showing {filteredItems.length} of {items.length} loaded items.
+             </div>
+        )}
+
         {error && <div style={{ 
             padding: '12px', 
             backgroundColor: 'var(--ds-background-danger, #FFEBE6)', 
@@ -110,14 +176,14 @@ const StorageViewer = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {items.length === 0 && !loading && (
+                    {filteredItems.length === 0 && !loading && (
                         <tr>
                             <td colSpan="3" style={{ padding: '20px', textAlign: 'center', color: 'var(--ds-text-subtlest, #6B778C)' }}>
-                                No storage items found.
+                                {items.length === 0 ? "No storage items found." : "No items match your filters."}
                             </td>
                         </tr>
                     )}
-                    {items.map((item) => (
+                    {filteredItems.map((item) => (
                         <tr key={item.key} style={{ borderBottom: '1px solid var(--ds-border, #dfe1e6)' }}>
                             <td style={{ padding: '10px', verticalAlign: 'top', wordBreak: 'break-all', color: 'var(--ds-text, #172B4D)' }}>{item.key}</td>
                             <td style={{ padding: '10px', verticalAlign: 'top', color: 'var(--ds-text, #172B4D)' }}>
