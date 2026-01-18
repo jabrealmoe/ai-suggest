@@ -219,6 +219,24 @@ resolver.define('getLlmUsageStats', async (req) => {
   return stats;
 });
 
+
+resolver.define('getAllStorage', async (req) => {
+  const { cursor, limit = 10 } = req.payload || {};
+  
+  // Use storage.query() with pagination
+  // We use getMany() which efficiently retrieves keys and values together.
+  // This satisfies the requirement to retrieve values for each key.
+  const data = await storage.query()
+    .limit(limit)
+    .cursor(cursor)
+    .getMany();
+
+  return {
+    results: data.results,
+    nextCursor: data.nextCursor
+  };
+});
+
 const handler = resolver.getDefinitions();
 
 

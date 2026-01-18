@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { invoke } from '@forge/bridge';
 import ParticleSwarm from './ParticleSwarm';
 import ThreeDonutChart from './ThreeDonutChart';
+import StorageViewer from './StorageViewer';
 // Recharts removed to use 3D chart
 // import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -146,6 +147,22 @@ const AdminPage = () => {
                     }}
                 >
                     Reports
+                </button>
+                <button
+                    onClick={() => setActiveTab('storage')}
+                    style={{
+                        padding: '10px 20px',
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: activeTab === 'storage' ? '2px solid var(--ds-border-selected, #0052CC)' : '2px solid transparent',
+                        marginBottom: '-2px',
+                        color: activeTab === 'storage' ? 'var(--ds-text-selected, #0052CC)' : 'var(--ds-text-subtle, #5E6C84)',
+                        fontWeight: activeTab === 'storage' ? 'bold' : 'normal',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                    }}
+                >
+                    Storage Viewer
                 </button>
             </div>
 
@@ -512,6 +529,13 @@ const AdminPage = () => {
                     )}
                 </>
             )}
+            {/* VERSION FOOTER */}
+            {activeTab === 'storage' && (
+                <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+                    <StorageViewer />
+                </div>
+            )}
+
             {/* Version Footer */}
             <div style={{
                 marginTop: '40px',
