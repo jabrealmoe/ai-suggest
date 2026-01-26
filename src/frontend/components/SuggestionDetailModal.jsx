@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './SuggestionDetailModal.css';
 
 const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => {
@@ -7,23 +8,57 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
         ? suggestion.originalDescription
         : suggestion?.description || '';
 
+    // Helper to inject markdown headers for known sections if they are just plain text
+    const formatDescription = (text) => {
+        if (!text) return '';
+        let formatted = text;
+        
+        // List of sections to format as H3
+        const sections = [
+            'Objective',
+            'Business Justification',
+            'Technical or Operational Details',
+            'Acceptance Criteria',
+            'Dependencies/Risks',
+            'Risk/Dependencies'
+        ];
+
+        sections.forEach(section => {
+            // Regex checks for Start of Line (or newline) followed by the Section Name and a colon
+            // We replace it with ### Section Name:
+            const regex = new RegExp(`(^|\\n)(${section}):`, 'g');
+            formatted = formatted.replace(regex, '$1### $2:');
+        });
+
+        // Also ensure bullet points * without space become * space if needed? 
+        // User example: "*   Identify..." -> This is valid markdown.
+        // User example: "*   A documented..." -> Valid.
+        
+        return formatted;
+    };
+
+    const formattedFullText = useMemo(() => formatDescription(fullText), [fullText]);
+
     React.useEffect(() => {
-        if (!fullText) return;
+        if (!formattedFullText) return;
 
         setDisplayedText(''); // Reset on new suggestion
         let index = 0;
 
+        // Speed up the typing slightly for longer markdown content
         const timer = setInterval(() => {
-            if (index < fullText.length) {
-                setDisplayedText((prev) => prev + fullText.charAt(index));
+            if (index < formattedFullText.length) {
+                // Add chunks of characters to prevent breaking markdown syntax as much as possible?
+                // No, simple char accumulation is smoothest, ReactMarkdown handles incomplete safely.
+                setDisplayedText((prev) => prev + formattedFullText.charAt(index));
                 index++;
             } else {
                 clearInterval(timer);
             }
-        }, 5); // Adjust speed here (ms per char)
+        }, 3); 
 
         return () => clearInterval(timer);
-    }, [fullText]);
+    }, [formattedFullText]);
 
     if (!suggestion) return null;
 
@@ -35,9 +70,9 @@ const SuggestionDetailModal = ({ suggestion, onClose, onApply, isApplying }) => 
                 </div>
 
                 <div className="modal-body">
-                    <div className="modal-description typing-effect">
-                        {displayedText}
-                        <span className="cursor-blink">|</span>
+                    <div className="modal-description">
+                        <ReactMarkdown>{displayedText}</ReactMarkdown>
+                        {displayedText.length < formattedFullText.length && <span className="cursor-blink">|</span>}
                     </div>
                 </div>
 

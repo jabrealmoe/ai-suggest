@@ -118,36 +118,91 @@ resolver.define('applySuggestion', async (req) => {
   // If it's a string (mapped from description in webhook), we must wrap it in ADF.
   const isADF = suggestion.originalDescription && typeof suggestion.originalDescription === 'object';
 
-  /* New logic to convert string description to ADF with paragraphs */
+  /* Improved Markdown to ADF Converter */
   let contentNodes = [];
   const rawDesc = suggestion.originalDescription || suggestion.description || " ";
-
+  
   if (isADF) {
-    const descPayload = suggestion.originalDescription;
-    // simple valid check
-    if (descPayload.content) {
-      contentNodes = descPayload.content;
-    } else {
-      // fallback
-      contentNodes = [{ type: "paragraph", content: [{ type: "text", text: "Invalid ADF" }] }];
-    }
+     const descPayload = suggestion.originalDescription;
+     if (descPayload.content) {
+       contentNodes = descPayload.content;
+     } else {
+       contentNodes = [{ type: "paragraph", content: [{ type: "text", text: "Invalid ADF" }] }];
+     }
   } else {
-    // Split by newline and create separate paragraphs
+    // Parser state
     const lines = rawDesc.split(/\r?\n/);
-    contentNodes = lines.map(line => {
-      // If line is empty, we still want a paragraph (maybe with localId) or empty text? 
-      // Jira ADF paragraph must have content unless it's just a spacer. 
-      // Actually empty paragraph is allowed but might be invisible. 
-      // Better: paragraph with " " if it's truly empty?
-      // Let's just create a text node if line has content.
-      if (!line.trim()) {
-        return { type: "paragraph", content: [] };
-      }
-      return {
-        type: "paragraph",
-        content: [{ type: "text", text: line }]
-      };
-    });
+    contentNodes = [];
+    
+    let currentList = null;
+
+    // Sections that should be treated as Headers if found as plain text
+    const sectionHeaders = [
+        'Objective', 'Business Justification', 'Technical or Operational Details',
+        'Acceptance Criteria', 'Dependencies/Risks', 'Risk/Dependencies', 'Risks', 'Dependencies'
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        
+        if (!line) continue;
+        
+        // Helper regex matching
+        const isHeader = (text) => {
+             const clean = text.replace(/^\*\*|\*\*$/g, '').replace(/:$/, '').trim().toLowerCase();
+             return sectionHeaders.some(h => h.toLowerCase() === clean);
+        };
+
+        // 1. Check for Explicit Markdown Header (### Title)
+        if (line.startsWith('###')) {
+            if (currentList) { contentNodes.push(currentList); currentList = null; }
+            const text = line.replace(/^#{1,6}\s+/, '');
+            contentNodes.push({
+                type: 'heading',
+                attrs: { level: 3 },
+                content: [{ type: 'text', text: text }]
+            });
+            continue;
+        }
+
+        // 2. Check for Implicit Header
+        const headerMatch = line.match(/^([^:]+):$/);
+        if (headerMatch && isHeader(headerMatch[1])) {
+             if (currentList) { contentNodes.push(currentList); currentList = null; }
+             const cleanText = line.replace(/^\*\*|\*\*$/g, '').replace(/:$/, '');
+             contentNodes.push({
+                type: 'heading',
+                attrs: { level: 3 },
+                content: [{ type: 'text', text: cleanText }]
+            });
+            continue;
+        }
+
+        // 3. Check for List Item
+        if (line.startsWith('* ') || line.startsWith('- ')) {
+            const text = line.substring(2).trim();
+            if (!currentList) {
+                currentList = { type: 'bulletList', content: [] };
+            }
+            currentList.content.push({
+                type: 'listItem',
+                content: [{
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: text }]
+                }]
+            });
+            continue;
+        }
+
+        // 4. Default Paragraph
+        if (currentList) { contentNodes.push(currentList); currentList = null; }
+        contentNodes.push({
+            type: 'paragraph',
+            content: [{ type: 'text', text: line }]
+        });
+    }
+    // Final cleanup
+    if (currentList) contentNodes.push(currentList);
   }
 
   const descriptionPayload = isADF ? suggestion.originalDescription : {
@@ -186,29 +241,21 @@ resolver.define('applySuggestion', async (req) => {
   // --- Track LLM Usage Stats ---
   try {
     const usedLlm = suggestion.llm || 'Unknown Model';
-    console.log(`Tracking usage for LLM: ${usedLlm}`);
-
     // key for storing stats
     const STATS_KEY = 'llm-usage-stats';
-
     // Get current stats
     let stats = await storage.get(STATS_KEY) || {};
-
     // Increment count
     if (stats[usedLlm]) {
       stats[usedLlm]++;
     } else {
       stats[usedLlm] = 1;
     }
-
     // Save back
     await storage.set(STATS_KEY, stats);
     console.log(`Update stats for JJ: ${JSON.stringify(stats)}`);
-    console.log(`📊 Total usage count for "${usedLlm}" is now: ${stats[usedLlm]}`);
-
   } catch (statsErr) {
     console.error("Failed to update LLM stats:", statsErr);
-    // Suppress error so we don't fail the apply action just because stats failed
   }
 
   return { success: true };
