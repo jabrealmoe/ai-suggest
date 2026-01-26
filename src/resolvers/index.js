@@ -119,7 +119,6 @@ resolver.define('applySuggestion', async (req) => {
   const isADF = suggestion.originalDescription && typeof suggestion.originalDescription === 'object';
 
   /* Improved Markdown to ADF Converter */
-  let contentNodes = [];
   const rawDesc = suggestion.originalDescription || suggestion.description || " ";
   
   if (isADF) {
@@ -130,79 +129,18 @@ resolver.define('applySuggestion', async (req) => {
        contentNodes = [{ type: "paragraph", content: [{ type: "text", text: "Invalid ADF" }] }];
      }
   } else {
-    // Parser state
+    // Revert to simple split by newline
     const lines = rawDesc.split(/\r?\n/);
-    contentNodes = [];
-    
-    let currentList = null;
-
-    // Sections that should be treated as Headers if found as plain text
-    const sectionHeaders = [
-        'Objective', 'Business Justification', 'Technical or Operational Details',
-        'Acceptance Criteria', 'Dependencies/Risks', 'Risk/Dependencies', 'Risks', 'Dependencies'
-    ];
-
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        
-        if (!line) continue;
-        
-        // Helper regex matching
-        const isHeader = (text) => {
-             const clean = text.replace(/^\*\*|\*\*$/g, '').replace(/:$/, '').trim().toLowerCase();
-             return sectionHeaders.some(h => h.toLowerCase() === clean);
-        };
-
-        // 1. Check for Explicit Markdown Header (### Title)
-        if (line.startsWith('###')) {
-            if (currentList) { contentNodes.push(currentList); currentList = null; }
-            const text = line.replace(/^#{1,6}\s+/, '');
-            contentNodes.push({
-                type: 'heading',
-                attrs: { level: 3 },
-                content: [{ type: 'text', text: text }]
-            });
-            continue;
-        }
-
-        // 2. Check for Implicit Header
-        const headerMatch = line.match(/^([^:]+):$/);
-        if (headerMatch && isHeader(headerMatch[1])) {
-             if (currentList) { contentNodes.push(currentList); currentList = null; }
-             const cleanText = line.replace(/^\*\*|\*\*$/g, '').replace(/:$/, '');
-             contentNodes.push({
-                type: 'heading',
-                attrs: { level: 3 },
-                content: [{ type: 'text', text: cleanText }]
-            });
-            continue;
-        }
-
-        // 3. Check for List Item
-        if (line.startsWith('* ') || line.startsWith('- ')) {
-            const text = line.substring(2).trim();
-            if (!currentList) {
-                currentList = { type: 'bulletList', content: [] };
-            }
-            currentList.content.push({
-                type: 'listItem',
-                content: [{
-                    type: 'paragraph',
-                    content: [{ type: 'text', text: text }]
-                }]
-            });
-            continue;
-        }
-
-        // 4. Default Paragraph
-        if (currentList) { contentNodes.push(currentList); currentList = null; }
-        contentNodes.push({
-            type: 'paragraph',
-            content: [{ type: 'text', text: line }]
-        });
-    }
-    // Final cleanup
-    if (currentList) contentNodes.push(currentList);
+    contentNodes = lines.map(line => {
+      // If line is empty, return empty paragraph
+      if (!line.trim()) {
+        return { type: "paragraph", content: [] };
+      }
+      return {
+        type: "paragraph",
+        content: [{ type: "text", text: line }]
+      };
+    });
   }
 
   const descriptionPayload = isADF ? suggestion.originalDescription : {
