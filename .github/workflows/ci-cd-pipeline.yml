@@ -57,7 +57,7 @@ jobs:
           cache: "npm"
       - name: Install Forge config
         run: |
-          npm install -g @forge/cli
+          npm install -g @forge/cli@latest
           npm ci
       - name: Build
         run: npm run build
@@ -107,7 +107,7 @@ jobs:
           cache: "npm"
       - name: Install Forge
         run: |
-          npm install -g @forge/cli
+          npm install -g @forge/cli@latest
           npm ci
       - name: Build
         run: npm run build
@@ -179,7 +179,7 @@ jobs:
           cache: "npm"
       - name: Install Forge
         run: |
-          npm install -g @forge/cli
+          npm install -g @forge/cli@latest
           npm ci
       - name: Build
         run: npm run build
@@ -213,7 +213,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
       - name: Install Forge
-        run: npm install -g @forge/cli
+        run: npm install -g @forge/cli@latest
       - name: Find Previous Tag
         id: prev_tag
         run: |
