@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { webhook, WEBHOOK_SECRET_HEADER } from './index';
+import { webhook, WEBHOOK_SECRET_HEADER, normalizeScore } from './index';
 import * as forgeApi from '@forge/api';
 
 // Mock @forge/api
@@ -159,5 +159,35 @@ describe('Webhook Trigger', () => {
 
         expect(response.statusCode).toBe(500);
         expect(JSON.parse(response.body).error).toContain('Invalid JSON body');
+    });
+
+    describe('suggestion scores', () => {
+        it('stores the score sent by each model, and null when missing', async () => {
+            const payload = {
+                key: 'TEST-9',
+                suggestions: [
+                    { summary: 'A', description: 'a', llm: 'Claude', score: 82 },
+                    { summary: 'B', description: 'b', llm: 'GPT' }
+                ]
+            };
+
+            await webhook({ body: JSON.stringify(payload), headers: authHeaders });
+
+            const stored = forgeApi.storage.set.mock.calls[0][1];
+            expect(stored[0].score).toBe(82);
+            expect(stored[1].score).toBeNull();
+        });
+
+        it('normalizes score values from models', () => {
+            expect(normalizeScore(82)).toBe(82);
+            expect(normalizeScore('82')).toBe(82);
+            expect(normalizeScore('82%')).toBe(82);
+            expect(normalizeScore(81.6)).toBe(82);
+            expect(normalizeScore(140)).toBe(100);
+            expect(normalizeScore(-5)).toBe(0);
+            expect(normalizeScore(undefined)).toBeNull();
+            expect(normalizeScore('')).toBeNull();
+            expect(normalizeScore('high')).toBeNull();
+        });
     });
 });

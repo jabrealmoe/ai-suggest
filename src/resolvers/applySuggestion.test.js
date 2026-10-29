@@ -88,3 +88,28 @@ describe('applySuggestion resolver', () => {
     await expect(definitions.applySuggestion(makeRequest('s4'))).rejects.toThrow('Failed to update issue');
   });
 });
+
+describe('getSuggestions resolver', () => {
+  const context = { extension: { issue: { key: 'GS-1' } } };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('hides scored suggestions below the minimum but keeps unscored ones', async () => {
+    storage.get.mockImplementation(async (key) => {
+      if (key === 'appConfig') return { minScore: 70 };
+      return [
+        { id: 'high', score: 85 },
+        { id: 'low', score: 40 },
+        { id: 'none', score: null },
+        { id: 'legacy', score: '75%' }
+      ];
+    });
+
+    const result = await definitions.getSuggestions({ context });
+
+    expect(result.map((s) => s.id)).toEqual(['high', 'none', 'legacy']);
+  });
+});
+

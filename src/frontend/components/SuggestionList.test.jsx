@@ -23,4 +23,19 @@ describe('SuggestionList Component', () => {
     const { container } = render(<SuggestionList suggestions={[]} onApply={mockOnApply} onViewDetails={mockOnViewDetails} />);
     expect(container.firstChild).toBeEmptyDOMElement();
   });
+
+  it('shows the quality score badge when a suggestion has a score', () => {
+    render(<SuggestionList suggestions={mockSuggestions} onApply={mockOnApply} onViewDetails={mockOnViewDetails} />);
+
+    expect(screen.getByText('Quality 95/100')).toBeInTheDocument();
+    expect(screen.getByText('Quality 85/100')).toBeInTheDocument();
+  });
+
+  it('hides the score badge when a suggestion has no score', () => {
+    const unscored = [{ id: '3', title: 'No score', description: 'D', score: null }];
+    render(<SuggestionList suggestions={unscored} onApply={mockOnApply} onViewDetails={mockOnViewDetails} />);
+
+    expect(screen.queryByText(/Quality/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Match/)).not.toBeInTheDocument();
+  });
 });

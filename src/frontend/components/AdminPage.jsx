@@ -171,7 +171,7 @@ const AdminPage = () => {
                 <>
                     <div style={{ marginBottom: '20px' }}>
                         <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: 'var(--ds-text, #444)' }}>
-                            Minimum Confidence Threshold (%)
+                            Minimum Quality Score (0-100)
                         </label>
                         <input
                             type="number"
@@ -190,7 +190,7 @@ const AdminPage = () => {
                             }}
                         />
                         <p style={{ fontSize: '12px', color: 'var(--ds-text-subtlest, #6B778C)', marginTop: '4px' }}>
-                            Suggestions below this score will be filtered out (example setting).
+                            Suggestions whose model-estimated quality score is below this value are hidden. Suggestions without a score are always shown. Set to 0 to show everything.
                         </p>
                     </div>
 
