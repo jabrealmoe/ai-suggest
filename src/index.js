@@ -75,6 +75,29 @@ const checkSharedSecret = (req) => {
     return null;
 };
 
+/**
+ * Turns the score a model sent into a whole number from 0 to 100.
+ * Models may send a number (82), a numeric string ("82"), or a percent
+ * string ("82%"). Anything else (missing, empty, "high") returns null,
+ * which tells the panel to hide the score badge instead of showing a
+ * made-up number.
+ */
+export const normalizeScore = (value) => {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    const text = String(value).trim().replace(/%$/, '');
+    if (text === '') {
+        return null;
+    }
+    const number = Number(text);
+    if (!Number.isFinite(number)) {
+        return null;
+    }
+    // Keep it in range so a bad value can't show "140%".
+    return Math.round(Math.min(100, Math.max(0, number)));
+};
+
 export const webhook = async (req) => {
     console.log("Webhook triggered");
 
@@ -155,7 +178,10 @@ export const webhook = async (req) => {
                     description: descPreview,
                     originalDescription: s.description, // Store the full content
                     llm: s.llm || 'AI Agent',
-                    score: 95 // placeholder
+                    // The rewrite agent's own estimate of the rewritten ticket's
+                    // quality (0-100, same rubric as the quality agent).
+                    // null when the agent didn't send one; the panel then hides it.
+                    score: normalizeScore(s.score)
                 };
             });
         } else if (description) {
@@ -184,7 +210,8 @@ export const webhook = async (req) => {
                 description: descriptionPreview,
                 originalDescription: description,
                 llm: 'n8n AI Agent',
-                score: 95
+                // The older single-suggestion format may include a score too.
+                score: normalizeScore(data.score)
             });
         } else {
             console.warn("Missing description/suggestions");
