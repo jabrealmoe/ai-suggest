@@ -15,18 +15,18 @@ resolver.define('getSuggestions', async (req) => {
   // Fetch suggestions from Forge Storage using Key
   const suggestions = await storage.get(`suggestions-${issueKey}`);
 
-  // Filter based on minScore if configured
+  // Hide suggestions scored below the admin's minimum, if one is set.
+  // A suggestion WITHOUT a score is always kept: we can't judge it, and
+  // hiding it would make the panel look empty for no visible reason.
   const appConfig = await storage.get('appConfig');
   if (appConfig && appConfig.minScore && suggestions) {
     return suggestions.filter(s => {
-      // Assuming 'score' is a percentage in string "85%" or number
-      let scoreVal = 0;
-      if (typeof s.score === 'string') {
-        scoreVal = parseInt(s.score.replace('%', ''));
-      } else {
-        scoreVal = s.score;
+      if (s.score === null || s.score === undefined || s.score === '') {
+        return true;
       }
-      return scoreVal >= appConfig.minScore;
+      // Older stored data may hold the score as a string like "85%".
+      const scoreVal = typeof s.score === 'string' ? parseInt(s.score.replace('%', ''), 10) : s.score;
+      return Number.isNaN(scoreVal) || scoreVal >= appConfig.minScore;
     });
   }
 
