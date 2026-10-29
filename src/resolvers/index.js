@@ -113,41 +113,42 @@ resolver.define('applySuggestion', async (req) => {
 
   console.log("Found suggestion to apply:", JSON.stringify(suggestion).substring(0, 100));
 
-  // Update the issue description
-  // Check if originalDescription exists AND is an object (valid ADF). 
-  // If it's a string (mapped from description in webhook), we must wrap it in ADF.
-  const isADF = suggestion.originalDescription && typeof suggestion.originalDescription === 'object';
+  // Build the new issue description in Atlassian Document Format (ADF),
+  // the JSON format Jira's v3 REST API requires for rich-text fields.
+  //
+  // Suggestions arrive in one of two shapes:
+  //  - An ADF object (older single-suggestion payloads): use it as-is.
+  //  - A plain string (current n8n payloads): wrap each line in a paragraph.
+  const original = suggestion.originalDescription;
+  const isADF = Boolean(original) && typeof original === 'object' && Array.isArray(original.content);
 
-  /* Improved Markdown to ADF Converter */
-  const rawDesc = suggestion.originalDescription || suggestion.description || " ";
-  
+  let descriptionPayload;
+
   if (isADF) {
-     const descPayload = suggestion.originalDescription;
-     if (descPayload.content) {
-       contentNodes = descPayload.content;
-     } else {
-       contentNodes = [{ type: "paragraph", content: [{ type: "text", text: "Invalid ADF" }] }];
-     }
+    descriptionPayload = original;
   } else {
-    // Revert to simple split by newline
-    const lines = rawDesc.split(/\r?\n/);
-    contentNodes = lines.map(line => {
-      // If line is empty, return empty paragraph
-      if (!line.trim()) {
-        return { type: "paragraph", content: [] };
-      }
-      return {
-        type: "paragraph",
-        content: [{ type: "text", text: line }]
-      };
-    });
-  }
+    // Fall back to the short preview if the full text is missing.
+    const rawDesc = String(original || suggestion.description || ' ');
 
-  const descriptionPayload = isADF ? suggestion.originalDescription : {
-    type: "doc",
-    version: 1,
-    content: contentNodes
-  };
+    // Some models double-escape line breaks, so the text contains a literal
+    // backslash followed by "n" instead of a real newline. Turn those into
+    // real newlines so Jira doesn't show "\n" in the description.
+    const normalized = rawDesc.replace(/\\r\\n|\\n/g, '\n');
+
+    // One ADF paragraph per line. Empty lines become empty paragraphs,
+    // which Jira shows as spacing between sections.
+    const contentNodes = normalized.split(/\r?\n/).map((line) => (
+      line.trim()
+        ? { type: 'paragraph', content: [{ type: 'text', text: line }] }
+        : { type: 'paragraph', content: [] }
+    ));
+
+    descriptionPayload = {
+      type: 'doc',
+      version: 1,
+      content: contentNodes
+    };
+  }
 
   const bodyData = {
     fields: {
