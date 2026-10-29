@@ -1,8 +1,90 @@
 export { handler } from './resolvers';
 import api, { storage, route } from '@forge/api';
+import { createHash, timingSafeEqual } from 'crypto';
+
+// Name of the HTTP header n8n must send with every call to the web trigger.
+// Forge gives us request headers with lower-case names, so keep this lower-case.
+export const WEBHOOK_SECRET_HEADER = 'x-dr-jira-secret';
+
+/**
+ * Builds a JSON HTTP response in the shape Forge web triggers expect.
+ * Forge requires every header value to be an ARRAY of strings. A plain string
+ * (e.g. 'Content-Type': 'application/json') makes Forge reject the response
+ * and the caller gets a 424 error, even though our code ran successfully.
+ */
+const jsonResponse = (statusCode, payload) => ({
+    statusCode,
+    headers: { 'Content-Type': ['application/json'] },
+    body: JSON.stringify(payload)
+});
+
+/**
+ * Reads one header value from a Forge web trigger request.
+ * Forge passes headers as an object whose values are arrays of strings,
+ * for example: { 'x-dr-jira-secret': ['abc123'] }.
+ * We also accept a plain string so local tests and other callers still work.
+ */
+const getHeader = (req, name) => {
+    const headers = (req && req.headers) || {};
+    // Look up the header case-insensitively, just in case.
+    const matchKey = Object.keys(headers).find((k) => k.toLowerCase() === name);
+    if (!matchKey) {
+        return undefined;
+    }
+    const value = headers[matchKey];
+    return Array.isArray(value) ? value[0] : value;
+};
+
+/**
+ * Compares two strings in constant time so an attacker can't guess the secret
+ * one character at a time by measuring how long each request takes.
+ * Hashing both values first gives buffers of equal length, which
+ * timingSafeEqual requires.
+ */
+const secretsMatch = (provided, expected) => {
+    const a = createHash('sha256').update(String(provided)).digest();
+    const b = createHash('sha256').update(String(expected)).digest();
+    return timingSafeEqual(a, b);
+};
+
+/**
+ * Checks that the caller sent the shared secret we expect.
+ * The expected value lives in an encrypted Forge environment variable
+ * (WEBHOOK_SHARED_SECRET), set with:
+ *   forge variables set --encrypt WEBHOOK_SHARED_SECRET <value> -e <environment>
+ *
+ * Returns null when the request is allowed, or an error response to send back.
+ */
+const checkSharedSecret = (req) => {
+    const expected = process.env.WEBHOOK_SHARED_SECRET;
+
+    // Fail closed: if the secret was never configured, reject every call
+    // instead of quietly leaving the endpoint open to anyone.
+    if (!expected) {
+        console.error('WEBHOOK_SHARED_SECRET is not set. Rejecting web trigger call.');
+        return jsonResponse(503, { error: 'Web trigger is not configured' });
+    }
+
+    const provided = getHeader(req, WEBHOOK_SECRET_HEADER);
+    if (!provided || !secretsMatch(provided, expected)) {
+        // Never log the provided or expected value.
+        console.warn('Web trigger call rejected: missing or invalid shared secret header.');
+        return jsonResponse(401, { error: 'Unauthorized' });
+    }
+
+    return null;
+};
 
 export const webhook = async (req) => {
     console.log("Webhook triggered");
+
+    // Reject the request before reading or storing anything if the caller
+    // can't prove it knows the shared secret.
+    const authError = checkSharedSecret(req);
+    if (authError) {
+        return authError;
+    }
+
     try {
         const { body } = req;
         console.log("Raw body type:", typeof body);
@@ -48,11 +130,7 @@ export const webhook = async (req) => {
 
         if (!key) {
             console.warn("Missing key in data:", JSON.stringify(data).substring(0, 200));
-            return {
-                statusCode: 400,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Missing issue key in payload' })
-            };
+            return jsonResponse(400, { error: 'Missing issue key in payload' });
         }
 
         let suggestionsToStore = [];
@@ -110,11 +188,7 @@ export const webhook = async (req) => {
             });
         } else {
             console.warn("Missing description/suggestions");
-            return {
-                statusCode: 400,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Missing description or suggestions in payload' })
-            };
+            return jsonResponse(400, { error: 'Missing description or suggestions in payload' });
         }
 
         console.log(`Storing ${suggestionsToStore.length} suggestions for ${key}`);
@@ -128,18 +202,10 @@ export const webhook = async (req) => {
             throw storageError;
         }
 
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ success: true, message: `Stored suggestion for issue ${key}` })
-        };
+        return jsonResponse(200, { success: true, message: `Stored suggestion for issue ${key}` });
     } catch (error) {
         console.error('Webhook error:', error);
-        return {
-            statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Internal Server Error: ' + error.message })
-        };
+        return jsonResponse(500, { error: 'Internal Server Error: ' + error.message });
     }
 };
 
