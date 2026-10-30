@@ -4,6 +4,7 @@ import SuggestionList from './components/SuggestionList';
 import AdminPage from './components/AdminPage';
 import BrainLoader from './components/BrainLoader';
 import SuggestionDetailModal from './components/SuggestionDetailModal';
+import { pollForSuggestions } from './pollSuggestions';
 import './App.css';
 
 const App = () => {
@@ -32,36 +33,26 @@ const App = () => {
     useEffect(() => {
         // Only run suggestion logic if we are in issue context
         if (viewContext && viewContext.extension && viewContext.extension.type === 'jira:issueContext') {
-            let attempts = 0;
-            const maxAttempts = 20; // Poll for ~1 minute (20 * 3s)
-            let timer;
-
-            const checkSuggestions = () => {
-                invoke('getSuggestions')
-                    .then((data) => {
-                        // Only finish if we found suggestions
-                        if (data && data.length > 0) {
-                            setSuggestions(data);
-                            setLoading(false); // Triggers "done" state in RandomLoader
-                        } else if (attempts < maxAttempts) {
-                            attempts++;
-                            timer = setTimeout(checkSuggestions, 3000); // Retry in 3s
-                        } else {
-                            // Timeout - show empty list or error
-                            setLoading(false);
-                            // Note: suggestions is [] by default, so it will show empty list
-                            console.log("Polling timed out, no suggestions found.");
-                        }
-                    })
-                    .catch((err) => {
-                        console.error('Failed to load suggestions:', err);
-                        setError('Failed to load suggestions. Please try again.');
-                        setLoading(false);
-                    });
-            };
-
-            checkSuggestions();
-            return () => clearTimeout(timer);
+            // Keep asking for about 3 minutes; a full n8n run takes a bit over a minute.
+            const stopPolling = pollForSuggestions({
+                fetchSuggestions: () => invoke('getSuggestions'),
+                onFound: (data) => {
+                    setSuggestions(data);
+                    setLoading(false); // Hides the brain loader and shows the list
+                },
+                onTimeout: () => {
+                    // suggestions stays [] so the panel shows its empty state
+                    setLoading(false);
+                    console.log('Polling timed out, no suggestions found.');
+                },
+                onError: (err) => {
+                    console.error('Failed to load suggestions:', err);
+                    setError('Failed to load suggestions. Please try again.');
+                    setLoading(false);
+                },
+            });
+            // Stop polling if the panel closes.
+            return stopPolling;
         }
     }, [viewContext]);
 
